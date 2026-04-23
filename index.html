@@ -3,598 +3,730 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>CS Risk Command · ITSM</title>
+<title>CS Risk Radar · AI-Powered</title>
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet"/>
 <style>
 :root{
   --bg:#0b0d14;--surface:#111420;--surface2:#171b2a;--surface3:#1d2236;
-  --border:rgba(255,255,255,0.07);--border2:rgba(255,255,255,0.12);
+  --border:rgba(255,255,255,0.07);--border2:rgba(255,255,255,0.13);
   --text:#e2e4ee;--muted:#5a607a;--muted2:#8890aa;
   --crit:#f87171;--critbg:#2d1111;
   --high:#fbbf24;--highbg:#2d1f00;
   --med:#60a5fa;--medbg:#0d1f3a;
   --low:#34d399;--lowbg:#052318;
-  --accent:#818cf8;--accentbg:rgba(129,140,248,.12);
-  --sim:#c084fc;--simbg:rgba(192,132,252,.1);--simborder:rgba(192,132,252,.3);
+  --accent:#818cf8;--accentbg:rgba(129,140,248,.1);
+  --ai:#a78bfa;--aibg:rgba(167,139,250,.08);--aiborder:rgba(167,139,250,.25);
+  --sim:#c084fc;--simbg:rgba(192,132,252,.08);--simborder:rgba(192,132,252,.25);
   --mono:'IBM Plex Mono',monospace;--sans:'DM Sans',sans-serif;
 }
 *{box-sizing:border-box;margin:0;padding:0;}
-body{font-family:var(--sans);background:var(--bg);color:var(--text);height:100vh;display:flex;flex-direction:column;overflow:hidden;}
+html,body{height:100%;overflow:hidden;}
+body{font-family:var(--sans);background:var(--bg);color:var(--text);display:flex;flex-direction:column;}
 
-/* TOP BAR */
-.topbar{display:flex;align-items:center;justify-content:space-between;padding:0 20px;height:52px;border-bottom:1px solid var(--border);background:var(--surface);flex-shrink:0;}
-.topbar-brand{display:flex;align-items:center;gap:10px;}
-.brand-dot{width:8px;height:8px;border-radius:50%;background:var(--accent);animation:pulse 2.5s infinite;}
-@keyframes pulse{0%,100%{opacity:1;box-shadow:0 0 0 0 rgba(129,140,248,.4);}50%{opacity:.6;box-shadow:0 0 0 6px rgba(129,140,248,0);}}
-.brand-name{font-size:14px;font-weight:600;letter-spacing:-.01em;color:#fff;}
-.brand-sub{font-size:11px;color:var(--muted);margin-left:2px;}
-.topbar-stats{display:flex;gap:24px;}
+/* TOPBAR */
+.topbar{display:flex;align-items:center;justify-content:space-between;padding:0 18px;height:50px;border-bottom:1px solid var(--border);background:var(--surface);flex-shrink:0;gap:12px;}
+.brand{display:flex;align-items:center;gap:9px;}
+.brand-dot{width:8px;height:8px;border-radius:50%;background:var(--ai);flex-shrink:0;animation:glow 2.5s infinite;}
+@keyframes glow{0%,100%{box-shadow:0 0 0 0 rgba(167,139,250,.5);}50%{box-shadow:0 0 0 5px rgba(167,139,250,0);}}
+.brand-name{font-size:14px;font-weight:600;color:#fff;letter-spacing:-.01em;}
+.brand-badge{font-size:9px;padding:2px 7px;border-radius:10px;background:var(--aibg);border:1px solid var(--aiborder);color:var(--ai);font-weight:600;letter-spacing:.04em;margin-left:2px;}
+.topbar-stats{display:flex;gap:20px;}
 .ts{text-align:center;}
-.ts-val{font-family:var(--mono);font-size:15px;font-weight:500;}
-.ts-lbl{font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-top:1px;}
+.ts-val{font-family:var(--mono);font-size:14px;font-weight:500;}
+.ts-lbl{font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;}
+.topbar-right{display:flex;align-items:center;gap:8px;}
+.btn-key{font-size:11px;padding:5px 11px;border-radius:6px;cursor:pointer;font-family:var(--sans);border:1px solid var(--border2);color:var(--muted2);background:transparent;transition:all .15s;display:flex;align-items:center;gap:5px;}
+.btn-key:hover{background:var(--surface2);color:var(--text);}
+.btn-key.keyset{border-color:rgba(52,211,153,.3);color:var(--low);background:rgba(52,211,153,.06);}
+
+/* KEY MODAL */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:100;display:none;align-items:center;justify-content:center;}
+.modal-overlay.open{display:flex;}
+.modal{background:var(--surface);border:1px solid var(--border2);border-radius:12px;padding:24px;width:440px;max-width:90vw;}
+.modal-title{font-size:15px;font-weight:600;color:#fff;margin-bottom:6px;}
+.modal-sub{font-size:12px;color:var(--muted2);margin-bottom:18px;line-height:1.6;}
+.modal-sub a{color:var(--ai);text-decoration:none;}
+.modal input{width:100%;background:var(--surface2);border:1px solid var(--border2);color:var(--text);font-family:var(--mono);font-size:12px;padding:9px 12px;border-radius:7px;outline:none;margin-bottom:12px;}
+.modal input:focus{border-color:var(--ai);}
+.modal-actions{display:flex;gap:8px;justify-content:flex-end;}
+.btn-primary{font-size:12px;font-weight:600;padding:7px 16px;border-radius:6px;cursor:pointer;font-family:var(--sans);border:1px solid rgba(167,139,250,.4);color:var(--ai);background:var(--aibg);transition:all .15s;}
+.btn-primary:hover{background:rgba(167,139,250,.15);}
+.btn-secondary{font-size:12px;padding:7px 14px;border-radius:6px;cursor:pointer;font-family:var(--sans);border:1px solid var(--border2);color:var(--muted2);background:transparent;}
 
 /* LAYOUT */
 .layout{display:flex;flex:1;overflow:hidden;}
 
 /* SIDEBAR */
-.sidebar{width:260px;flex-shrink:0;border-right:1px solid var(--border);display:flex;flex-direction:column;background:var(--surface);}
-.sidebar-head{padding:12px 14px;border-bottom:1px solid var(--border);}
+.sidebar{width:255px;flex-shrink:0;border-right:1px solid var(--border);display:flex;flex-direction:column;background:var(--surface);}
+.sidebar-head{padding:11px 13px;border-bottom:1px solid var(--border);}
 .search-wrap{position:relative;}
-.search-wrap input{width:100%;background:var(--surface2);border:1px solid var(--border2);color:var(--text);font-family:var(--sans);font-size:12px;padding:7px 10px 7px 30px;border-radius:6px;outline:none;}
+.search-wrap input{width:100%;background:var(--surface2);border:1px solid var(--border2);color:var(--text);font-family:var(--sans);font-size:12px;padding:7px 10px 7px 28px;border-radius:6px;outline:none;}
 .search-wrap input::placeholder{color:var(--muted);}
 .search-wrap input:focus{border-color:var(--accent);}
-.search-icon{position:absolute;left:9px;top:50%;transform:translateY(-50%);color:var(--muted);font-size:13px;pointer-events:none;}
-.sidebar-filters{display:flex;gap:4px;padding:8px 14px;border-bottom:1px solid var(--border);}
-.ftag{font-size:10px;padding:3px 8px;border-radius:4px;cursor:pointer;border:1px solid var(--border2);color:var(--muted2);background:transparent;transition:all .15s;font-family:var(--sans);}
-.ftag.active-all{border-color:var(--accent);color:var(--accent);background:rgba(129,140,248,.1);}
-.ftag.active-c{border-color:var(--crit);color:var(--crit);background:rgba(248,113,113,.1);}
-.ftag.active-h{border-color:var(--high);color:var(--high);background:rgba(251,191,36,.1);}
-.ftag.active-m{border-color:var(--med);color:var(--med);background:rgba(96,165,250,.1);}
-.ftag.active-l{border-color:var(--low);color:var(--low);background:rgba(52,211,153,.1);}
-.account-list{flex:1;overflow-y:auto;padding:4px 0;}
-.account-list::-webkit-scrollbar{width:4px;}
-.account-list::-webkit-scrollbar-thumb{background:var(--border2);border-radius:4px;}
-.acc-item{padding:9px 14px;cursor:pointer;border-left:3px solid transparent;transition:all .12s;display:flex;justify-content:space-between;align-items:center;}
+.si{position:absolute;left:8px;top:50%;transform:translateY(-50%);color:var(--muted);font-size:12px;pointer-events:none;}
+.sidebar-filters{display:flex;gap:3px;padding:7px 13px;border-bottom:1px solid var(--border);}
+.ftag{font-size:10px;padding:3px 7px;border-radius:4px;cursor:pointer;border:1px solid var(--border2);color:var(--muted2);background:transparent;font-family:var(--sans);}
+.ftag.fa{border-color:var(--accent);color:var(--accent);background:var(--accentbg);}
+.ftag.fc{border-color:var(--crit);color:var(--crit);background:rgba(248,113,113,.08);}
+.ftag.fh{border-color:var(--high);color:var(--high);background:rgba(251,191,36,.08);}
+.ftag.fm{border-color:var(--med);color:var(--med);background:rgba(96,165,250,.08);}
+.ftag.fl{border-color:var(--low);color:var(--low);background:rgba(52,211,153,.08);}
+.acc-list{flex:1;overflow-y:auto;padding:3px 0;}
+.acc-list::-webkit-scrollbar{width:3px;}
+.acc-list::-webkit-scrollbar-thumb{background:var(--border2);border-radius:3px;}
+.acc-item{padding:8px 13px;cursor:pointer;border-left:3px solid transparent;transition:all .1s;display:flex;justify-content:space-between;align-items:center;}
 .acc-item:hover{background:var(--surface2);}
-.acc-item.selected{background:var(--surface2);border-left-color:var(--accent);}
-.acc-name{font-size:12px;font-weight:500;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:150px;}
-.acc-meta{font-size:10px;color:var(--muted);margin-top:2px;}
-.acc-score{font-family:var(--mono);font-size:12px;font-weight:500;flex-shrink:0;margin-left:6px;}
-.score-c{color:var(--crit);}
-.score-h{color:var(--high);}
-.score-m{color:var(--med);}
-.score-l{color:var(--low);}
+.acc-item.sel{background:var(--surface2);border-left-color:var(--ai);}
+.acc-name{font-size:12px;font-weight:500;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:148px;}
+.acc-meta{font-size:10px;color:var(--muted);margin-top:1px;}
+.acc-sc{font-family:var(--mono);font-size:12px;font-weight:500;flex-shrink:0;margin-left:5px;}
 
-/* MAIN */
-.main{flex:1;display:flex;overflow:hidden;}
-.center{flex:1;overflow-y:auto;padding:20px;}
+/* CENTER */
+.center{flex:1;overflow-y:auto;padding:18px;min-width:0;}
 .center::-webkit-scrollbar{width:4px;}
 .center::-webkit-scrollbar-thumb{background:var(--border2);border-radius:4px;}
 
 /* ACCOUNT HEADER */
-.acc-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:20px;padding-bottom:16px;border-bottom:1px solid var(--border);}
-.acc-title{font-size:22px;font-weight:600;color:#fff;letter-spacing:-.02em;}
-.acc-subtitle{display:flex;gap:14px;margin-top:5px;flex-wrap:wrap;align-items:center;}
-.acc-pill{font-size:11px;color:var(--muted);display:flex;align-items:center;gap:4px;}
-.acc-pill span{color:var(--text);}
-.renewal-warn{font-size:11px;padding:3px 8px;border-radius:4px;}
-.header-actions{display:flex;gap:8px;flex-shrink:0;align-items:center;}
-.btn-sim{font-size:11px;font-weight:600;padding:7px 13px;border-radius:6px;cursor:pointer;font-family:var(--sans);transition:all .18s;border:1px solid var(--simborder);color:var(--sim);background:var(--simbg);display:flex;align-items:center;gap:6px;letter-spacing:.02em;}
-.btn-sim:hover{background:rgba(192,132,252,.18);}
-.btn-sim.active{background:rgba(192,132,252,.2);box-shadow:0 0 0 1px var(--sim);}
-.btn-apply{font-size:11px;font-weight:600;padding:7px 13px;border-radius:6px;cursor:pointer;font-family:var(--sans);border:1px solid rgba(52,211,153,.4);color:var(--low);background:rgba(52,211,153,.08);transition:all .15s;}
-.btn-apply:hover{background:rgba(52,211,153,.15);}
-.btn-discard{font-size:11px;padding:7px 13px;border-radius:6px;cursor:pointer;font-family:var(--sans);border:1px solid var(--border2);color:var(--muted2);background:transparent;transition:all .15s;}
-.btn-discard:hover{background:var(--surface2);}
+.acc-hdr{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:18px;padding-bottom:14px;border-bottom:1px solid var(--border);}
+.acc-title{font-size:20px;font-weight:600;color:#fff;letter-spacing:-.02em;}
+.acc-pills{display:flex;gap:12px;margin-top:5px;flex-wrap:wrap;align-items:center;}
+.pill{font-size:11px;color:var(--muted2);}
+.pill span{color:var(--text);}
+.ren-pill{font-size:11px;padding:2px 8px;border-radius:4px;}
+.hdr-btns{display:flex;gap:7px;flex-shrink:0;align-items:center;}
+.btn-sim{font-size:11px;font-weight:600;padding:6px 12px;border-radius:6px;cursor:pointer;font-family:var(--sans);border:1px solid var(--simborder);color:var(--sim);background:var(--simbg);}
+.btn-apply{font-size:11px;font-weight:600;padding:6px 12px;border-radius:6px;cursor:pointer;font-family:var(--sans);border:1px solid rgba(52,211,153,.4);color:var(--low);background:rgba(52,211,153,.07);}
+.btn-discard{font-size:11px;padding:6px 12px;border-radius:6px;cursor:pointer;font-family:var(--sans);border:1px solid var(--border2);color:var(--muted2);background:transparent;}
 
-/* SIM BANNER */
-.sim-banner{background:var(--simbg);border:1px solid var(--simborder);border-radius:8px;padding:9px 14px;margin-bottom:16px;display:flex;align-items:center;gap:10px;font-size:12px;color:var(--sim);}
-.sim-banner-dot{width:7px;height:7px;border-radius:50%;background:var(--sim);animation:pulse 2s infinite;}
-
-/* SIGNAL SECTION */
-.signal-section-label{font-size:9px;text-transform:uppercase;letter-spacing:.07em;color:var(--muted);margin-bottom:8px;display:flex;align-items:center;gap:8px;}
-.signal-section-label::after{content:'';flex:1;height:1px;background:var(--border);}
-.signal-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:20px;}
-
-/* SIMULATE SPLIT */
-.sim-split{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px;}
-.sim-col-label{font-size:9px;text-transform:uppercase;letter-spacing:.07em;margin-bottom:8px;padding:4px 8px;border-radius:4px;display:inline-block;}
-.sim-col-current .sim-col-label{color:var(--muted2);background:var(--surface2);border:1px solid var(--border2);}
-.sim-col-simulated .sim-col-label{color:var(--sim);background:var(--simbg);border:1px solid var(--simborder);}
-.sim-col-current .signal-card{opacity:.7;}
-.sim-col-current .tog{pointer-events:none;cursor:default;}
-
-.signal-card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:14px;}
-.signal-card.active-c{border-color:rgba(248,113,113,.35);background:rgba(248,113,113,.04);}
-.signal-card.active-h{border-color:rgba(251,191,36,.35);background:rgba(251,191,36,.04);}
-.signal-card.active-m-blue{border-color:rgba(96,165,250,.35);background:rgba(96,165,250,.04);}
-.signal-card.active-l{border-color:rgba(52,211,153,.35);background:rgba(52,211,153,.04);}
-.signal-card.sim-card{border-color:var(--simborder);background:var(--simbg);}
-.signal-icon{font-size:16px;margin-bottom:8px;display:block;}
-.signal-label{font-size:10px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin-bottom:2px;}
-.signal-name{font-size:13px;font-weight:600;color:#fff;margin-bottom:4px;}
-.signal-weight{font-size:10px;color:var(--muted);margin-bottom:12px;}
-.toggle-group{display:flex;gap:4px;}
-.tog{flex:1;padding:6px 4px;text-align:center;font-size:11px;font-weight:600;border-radius:6px;cursor:pointer;border:1px solid var(--border2);background:transparent;color:var(--muted2);font-family:var(--sans);transition:all .15s;letter-spacing:.02em;}
-.tog:hover{color:var(--text);}
-.tog.sel-h{background:var(--critbg);border-color:var(--crit);color:var(--crit);}
-.tog.sel-m{background:var(--highbg);border-color:var(--high);color:var(--high);}
-.tog.sel-l{background:var(--lowbg);border-color:var(--low);color:var(--low);}
-.tog.sel-sim{background:var(--simbg);border-color:var(--sim);color:var(--sim);}
-.signal-hint{font-size:10px;color:var(--muted);margin-top:8px;line-height:1.5;}
+/* SIGNALS */
+.sig-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:14px;}
+.sig-card{background:var(--surface);border:1px solid var(--border);border-radius:9px;padding:13px;}
+.sig-card.ac{border-color:rgba(248,113,113,.3);background:rgba(248,113,113,.04);}
+.sig-card.ah{border-color:rgba(251,191,36,.3);background:rgba(251,191,36,.04);}
+.sig-card.am{border-color:rgba(96,165,250,.3);background:rgba(96,165,250,.04);}
+.sig-card.al{border-color:rgba(52,211,153,.3);background:rgba(52,211,153,.04);}
+.sig-card.sim-c{border-color:var(--simborder);background:var(--simbg);}
+.sig-icon{font-size:15px;margin-bottom:7px;display:block;}
+.sig-lbl{font-size:10px;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);margin-bottom:1px;}
+.sig-name{font-size:13px;font-weight:600;color:#fff;margin-bottom:3px;}
+.sig-wt{font-size:10px;color:var(--muted);margin-bottom:10px;}
+.tog-grp{display:flex;gap:4px;}
+.tog{flex:1;padding:6px 3px;text-align:center;font-size:11px;font-weight:600;border-radius:5px;cursor:pointer;border:1px solid var(--border2);background:transparent;color:var(--muted2);font-family:var(--sans);transition:all .13s;}
+.tog.th{background:var(--critbg);border-color:var(--crit);color:var(--crit);}
+.tog.tm{background:var(--highbg);border-color:var(--high);color:var(--high);}
+.tog.tl{background:var(--lowbg);border-color:var(--low);color:var(--low);}
+.tog.ts{background:var(--simbg);border-color:var(--sim);color:var(--sim);}
+.sig-hint{font-size:10px;color:var(--muted);margin-top:8px;line-height:1.5;}
 
 /* SCORE PANEL */
-.score-panel{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:18px;margin-bottom:20px;display:flex;align-items:center;gap:20px;}
-.score-panel.sim-panel{border-color:var(--simborder);}
+.score-panel{background:var(--surface);border:1px solid var(--border);border-radius:9px;padding:16px;margin-bottom:14px;display:flex;align-items:center;gap:18px;}
 .gauge-wrap{position:relative;flex-shrink:0;}
 .gauge-center{position:absolute;top:50%;left:50%;transform:translate(-50%,-38%);text-align:center;}
-.gauge-num{font-family:var(--mono);font-size:28px;font-weight:500;line-height:1;transition:all .3s;}
-.gauge-denom{font-size:10px;color:var(--muted);margin-top:1px;}
-.gauge-sublabel{font-size:9px;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);margin-top:6px;}
-.score-info{flex:1;}
-.risk-badge-big{display:inline-flex;align-items:center;gap:7px;padding:5px 12px;border-radius:6px;font-size:12px;font-weight:600;letter-spacing:.03em;margin-bottom:10px;transition:all .3s;}
-.risk-c{background:var(--critbg);border:1px solid var(--crit);color:var(--crit);}
-.risk-h{background:var(--highbg);border:1px solid var(--high);color:var(--high);}
-.risk-m{background:var(--medbg);border:1px solid var(--med);color:var(--med);}
-.risk-l{background:var(--lowbg);border:1px solid var(--low);color:var(--low);}
-.score-breakdown{display:flex;gap:8px;flex-wrap:wrap;}
-.sb-item{background:var(--surface2);border:1px solid var(--border);border-radius:6px;padding:7px 10px;flex:1;min-width:72px;}
-.sb-lbl{font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;margin-bottom:3px;}
-.sb-val{font-family:var(--mono);font-size:14px;font-weight:500;transition:color .3s;}
-.sb-bar-track{height:3px;background:var(--border2);border-radius:2px;margin-top:4px;}
-.sb-bar{height:3px;border-radius:2px;transition:width .4s,background .3s;}
+.g-num{font-family:var(--mono);font-size:26px;font-weight:500;line-height:1;transition:all .3s;}
+.g-den{font-size:10px;color:var(--muted);margin-top:1px;}
+.score-info{flex:1;min-width:0;}
+.risk-badge{display:inline-flex;align-items:center;gap:6px;padding:4px 11px;border-radius:5px;font-size:12px;font-weight:600;margin-bottom:10px;transition:all .3s;}
+.rc{background:var(--critbg);border:1px solid var(--crit);color:var(--crit);}
+.rh{background:var(--highbg);border:1px solid var(--high);color:var(--high);}
+.rm{background:var(--medbg);border:1px solid var(--med);color:var(--med);}
+.rl{background:var(--lowbg);border:1px solid var(--low);color:var(--low);}
+.sbs{display:flex;gap:7px;flex-wrap:wrap;}
+.sb{background:var(--surface2);border:1px solid var(--border);border-radius:6px;padding:7px 10px;flex:1;min-width:70px;}
+.sb-l{font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:.04em;margin-bottom:3px;}
+.sb-v{font-family:var(--mono);font-size:13px;font-weight:500;transition:color .3s;}
+.sb-t{height:3px;background:var(--border2);border-radius:2px;margin-top:4px;}
+.sb-b{height:3px;border-radius:2px;transition:width .4s,background .3s;}
 
-/* SCORE COMPARE */
-.score-compare{display:grid;grid-template-columns:1fr auto 1fr;gap:12px;margin-bottom:20px;align-items:center;}
-.score-compare-divider{display:flex;flex-direction:column;align-items:center;gap:6px;}
-.delta-badge{font-family:var(--mono);font-size:13px;font-weight:600;padding:5px 10px;border-radius:6px;text-align:center;}
-.delta-pos{background:rgba(52,211,153,.12);border:1px solid rgba(52,211,153,.3);color:var(--low);}
-.delta-neg{background:rgba(248,113,113,.12);border:1px solid rgba(248,113,113,.3);color:var(--crit);}
-.delta-neu{background:var(--surface2);border:1px solid var(--border2);color:var(--muted2);}
-.delta-label{font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;}
-.score-box{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:16px;}
+/* SIM COMPARE */
+.sim-banner{background:var(--simbg);border:1px solid var(--simborder);border-radius:7px;padding:8px 13px;margin-bottom:13px;display:flex;align-items:center;gap:9px;font-size:12px;color:var(--sim);}
+.sim-dot{width:6px;height:6px;border-radius:50%;background:var(--sim);animation:glow 2s infinite;flex-shrink:0;}
+.sim-split{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px;}
+.sim-col-lbl{font-size:9px;text-transform:uppercase;letter-spacing:.06em;padding:3px 8px;border-radius:4px;display:inline-block;margin-bottom:7px;}
+.cur-lbl{color:var(--muted2);background:var(--surface2);border:1px solid var(--border2);}
+.sim-lbl{color:var(--sim);background:var(--simbg);border:1px solid var(--simborder);}
+.sim-col-cur .sig-card{opacity:.65;}
+.sim-col-cur .tog{pointer-events:none;}
+.score-compare{display:grid;grid-template-columns:1fr auto 1fr;gap:10px;margin-bottom:14px;align-items:center;}
+.score-box{background:var(--surface);border:1px solid var(--border);border-radius:9px;padding:14px;}
 .score-box.sim-box{border-color:var(--simborder);background:var(--simbg);}
-.score-box-label{font-size:9px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin-bottom:10px;}
-.score-box.sim-box .score-box-label{color:var(--sim);}
-.score-box-num{font-family:var(--mono);font-size:36px;font-weight:500;line-height:1;}
-.score-box-tier{font-size:12px;font-weight:600;margin-top:6px;padding:3px 9px;border-radius:4px;display:inline-block;}
+.sbox-lbl{font-size:9px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin-bottom:8px;}
+.sbox-lbl.sim{color:var(--sim);}
+.sbox-num{font-family:var(--mono);font-size:34px;font-weight:500;line-height:1;}
+.sbox-tier{font-size:11px;font-weight:600;padding:2px 8px;border-radius:4px;display:inline-block;margin-top:5px;}
+.delta-wrap{display:flex;flex-direction:column;align-items:center;gap:5px;}
+.delta{font-family:var(--mono);font-size:13px;font-weight:600;padding:5px 10px;border-radius:6px;}
+.dp{background:rgba(52,211,153,.1);border:1px solid rgba(52,211,153,.3);color:var(--low);}
+.dn{background:rgba(248,113,113,.1);border:1px solid rgba(248,113,113,.3);color:var(--crit);}
+.dz{background:var(--surface2);border:1px solid var(--border2);color:var(--muted2);}
+.delta-lbl{font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:.04em;}
+
+/* AI ANALYSIS CARD */
+.ai-card{background:var(--surface);border:1px solid var(--aiborder);border-radius:9px;padding:16px;margin-bottom:14px;position:relative;overflow:hidden;}
+.ai-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--ai),var(--sim),var(--ai));opacity:.5;}
+.ai-card-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;}
+.ai-card-title{display:flex;align-items:center;gap:7px;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.05em;color:var(--ai);}
+.ai-spinner{width:12px;height:12px;border:2px solid rgba(167,139,250,.2);border-top-color:var(--ai);border-radius:50%;animation:spin .8s linear infinite;}
+@keyframes spin{to{transform:rotate(360deg);}}
+.btn-regen{font-size:10px;padding:3px 9px;border-radius:4px;cursor:pointer;font-family:var(--sans);border:1px solid var(--aiborder);color:var(--ai);background:transparent;transition:all .15s;}
+.btn-regen:hover{background:var(--aibg);}
+.ai-body{font-size:12px;line-height:1.75;color:var(--text);}
+.ai-body p{margin-bottom:10px;}
+.ai-body p:last-child{margin-bottom:0;}
+.ai-section{margin-bottom:12px;}
+.ai-section-title{font-size:10px;text-transform:uppercase;letter-spacing:.05em;color:var(--ai);margin-bottom:6px;font-weight:600;}
+.ai-factor{display:flex;gap:8px;margin-bottom:5px;font-size:12px;line-height:1.5;}
+.ai-factor-num{font-family:var(--mono);font-size:10px;color:var(--ai);flex-shrink:0;margin-top:2px;width:16px;}
+.ai-traj{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-top:6px;}
+.traj-item{background:var(--surface2);border:1px solid var(--border);border-radius:6px;padding:8px 10px;}
+.traj-period{font-size:9px;text-transform:uppercase;letter-spacing:.04em;color:var(--muted);margin-bottom:3px;}
+.traj-text{font-size:11px;color:var(--text);line-height:1.5;}
+.ai-action-box{background:rgba(167,139,250,.07);border:1px solid var(--aiborder);border-radius:6px;padding:10px 12px;font-size:12px;line-height:1.6;color:var(--text);}
+.ai-no-key{text-align:center;padding:16px;color:var(--muted);font-size:12px;line-height:1.7;}
+.ai-no-key a{color:var(--ai);cursor:pointer;text-decoration:underline;}
+.ai-error{font-size:12px;color:var(--crit);padding:8px 0;}
 
 /* PLAYBOOK */
-.playbook{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:18px;}
-.pb-head{font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin-bottom:14px;display:flex;align-items:center;gap:8px;}
+.playbook{background:var(--surface);border:1px solid var(--border);border-radius:9px;padding:16px;}
+.pb-head{font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin-bottom:12px;display:flex;align-items:center;gap:8px;}
 .pb-head::after{content:'';flex:1;height:1px;background:var(--border);}
-.pb-actions{display:flex;flex-direction:column;gap:8px;}
-.pb-action{display:flex;gap:12px;padding:10px 12px;border-radius:7px;border:1px solid var(--border);background:var(--surface2);align-items:flex-start;transition:border-color .2s;}
-.pb-action:hover{border-color:var(--border2);}
+.pb-actions{display:flex;flex-direction:column;gap:7px;}
+.pb-action{display:flex;gap:10px;padding:9px 11px;border-radius:6px;border:1px solid var(--border);background:var(--surface2);align-items:flex-start;}
 .pb-num{font-family:var(--mono);font-size:11px;color:var(--muted);flex-shrink:0;margin-top:1px;width:18px;}
 .pb-text{font-size:12px;line-height:1.6;color:var(--text);flex:1;}
 .pb-text strong{color:#fff;font-weight:600;}
-.pb-priority{font-size:9px;font-weight:600;padding:2px 6px;border-radius:3px;flex-shrink:0;margin-top:2px;}
+.pb-pri{font-size:9px;font-weight:600;padding:2px 5px;border-radius:3px;flex-shrink:0;margin-top:2px;}
 .pri-now{background:var(--critbg);color:var(--crit);border:1px solid var(--crit);}
 .pri-soon{background:var(--highbg);color:var(--high);border:1px solid var(--high);}
 .pri-plan{background:var(--medbg);color:var(--med);border:1px solid var(--med);}
 .pri-growth{background:var(--lowbg);color:var(--low);border:1px solid var(--low);}
 
-/* RIGHT PANEL */
-.right-panel{width:230px;flex-shrink:0;border-left:1px solid var(--border);background:var(--surface);overflow-y:auto;display:flex;flex-direction:column;}
-.right-panel::-webkit-scrollbar{width:4px;}
-.right-panel::-webkit-scrollbar-thumb{background:var(--border2);border-radius:4px;}
-.rp-section{padding:14px 14px 0;margin-bottom:16px;}
-.rp-title{font-size:9px;text-transform:uppercase;letter-spacing:.07em;color:var(--muted);margin-bottom:10px;padding-bottom:6px;border-bottom:1px solid var(--border);}
-.rp-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:7px;}
-.rp-lbl{font-size:11px;color:var(--muted2);}
-.rp-val{font-size:11px;font-weight:500;font-family:var(--mono);color:var(--text);}
+/* RIGHT PANEL – TABS */
+.rpanel{width:300px;flex-shrink:0;border-left:1px solid var(--border);background:var(--surface);display:flex;flex-direction:column;}
+.rp-tabs{display:flex;border-bottom:1px solid var(--border);flex-shrink:0;}
+.rp-tab{flex:1;font-size:11px;font-weight:500;padding:10px 8px;text-align:center;cursor:pointer;color:var(--muted2);border-bottom:2px solid transparent;transition:all .15s;font-family:var(--sans);}
+.rp-tab.active{color:var(--ai);border-bottom-color:var(--ai);}
+.rp-tab:hover:not(.active){color:var(--text);}
+.rp-pane{flex:1;overflow-y:auto;display:none;flex-direction:column;}
+.rp-pane.active{display:flex;}
+.rp-pane::-webkit-scrollbar{width:3px;}
+.rp-pane::-webkit-scrollbar-thumb{background:var(--border2);border-radius:3px;}
 
-/* NOTES */
-.notes-wrap{padding:0 14px 14px;}
-.notes-label{font-size:9px;text-transform:uppercase;letter-spacing:.07em;color:var(--muted);margin-bottom:8px;padding-bottom:6px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;}
+/* CHAT PANE */
+.chat-messages{flex:1;overflow-y:auto;padding:12px;display:flex;flex-direction:column;gap:10px;}
+.chat-messages::-webkit-scrollbar{width:3px;}
+.chat-messages::-webkit-scrollbar-thumb{background:var(--border2);border-radius:3px;}
+.chat-quick{padding:8px 12px 0;display:flex;flex-wrap:wrap;gap:5px;flex-shrink:0;}
+.qbtn{font-size:10px;padding:4px 8px;border-radius:5px;cursor:pointer;border:1px solid var(--aiborder);color:var(--ai);background:var(--aibg);font-family:var(--sans);transition:all .15s;line-height:1.3;text-align:left;}
+.qbtn:hover{background:rgba(167,139,250,.15);}
+.msg{display:flex;flex-direction:column;gap:3px;animation:fadein .2s ease;}
+@keyframes fadein{from{opacity:0;transform:translateY(4px);}to{opacity:1;transform:none;}}
+.msg-user{align-items:flex-end;}
+.msg-ai{align-items:flex-start;}
+.msg-bubble{max-width:90%;padding:9px 12px;border-radius:8px;font-size:12px;line-height:1.65;}
+.msg-user .msg-bubble{background:var(--accentbg);border:1px solid rgba(129,140,248,.2);color:var(--text);border-bottom-right-radius:3px;}
+.msg-ai .msg-bubble{background:var(--surface2);border:1px solid var(--border2);color:var(--text);border-bottom-left-radius:3px;}
+.msg-ai .msg-bubble.streaming::after{content:'▋';animation:blink .7s infinite;color:var(--ai);}
+@keyframes blink{0%,100%{opacity:1;}50%{opacity:0;}}
+.msg-lbl{font-size:9px;color:var(--muted);padding:0 4px;}
+.chat-input-wrap{padding:10px 12px;border-top:1px solid var(--border);flex-shrink:0;}
+.chat-input-row{display:flex;gap:7px;align-items:flex-end;}
+textarea.chat-in{flex:1;background:var(--surface2);border:1px solid var(--border2);color:var(--text);font-family:var(--sans);font-size:12px;padding:8px 10px;border-radius:7px;resize:none;outline:none;max-height:90px;min-height:36px;line-height:1.5;}
+textarea.chat-in::placeholder{color:var(--muted);}
+textarea.chat-in:focus{border-color:var(--ai);}
+.btn-send{width:34px;height:34px;border-radius:6px;cursor:pointer;border:1px solid var(--aiborder);background:var(--aibg);color:var(--ai);font-size:14px;display:flex;align-items:center;justify-content:center;transition:all .15s;flex-shrink:0;}
+.btn-send:hover{background:rgba(167,139,250,.18);}
+.btn-send:disabled{opacity:.4;cursor:default;}
+.chat-hint{font-size:10px;color:var(--muted);margin-top:5px;text-align:center;}
+
+/* DETAILS + NOTES PANE */
+.det-section{padding:12px 14px;border-bottom:1px solid var(--border);}
+.det-title{font-size:9px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin-bottom:8px;}
+.det-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;}
+.det-lbl{font-size:11px;color:var(--muted2);}
+.det-val{font-size:11px;font-family:var(--mono);color:var(--text);}
+.notes-wrap{padding:12px 14px;flex:1;display:flex;flex-direction:column;}
+.notes-lbl{font-size:9px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin-bottom:7px;display:flex;justify-content:space-between;}
 .notes-saved{font-size:9px;color:var(--low);opacity:0;transition:opacity .3s;}
 .notes-saved.show{opacity:1;}
-textarea.notes-input{width:100%;background:var(--surface2);border:1px solid var(--border2);color:var(--text);font-family:var(--sans);font-size:11px;line-height:1.6;padding:9px 10px;border-radius:6px;resize:vertical;min-height:100px;outline:none;transition:border-color .15s;}
-textarea.notes-input::placeholder{color:var(--muted);}
-textarea.notes-input:focus{border-color:var(--accent);}
+textarea.notes-in{flex:1;background:var(--surface2);border:1px solid var(--border2);color:var(--text);font-family:var(--sans);font-size:11px;line-height:1.6;padding:9px 10px;border-radius:6px;resize:none;outline:none;min-height:120px;}
+textarea.notes-in::placeholder{color:var(--muted);}
+textarea.notes-in:focus{border-color:var(--accent);}
 .notes-meta{font-size:9px;color:var(--muted);margin-top:5px;display:flex;justify-content:space-between;}
 
-/* HISTORY */
-.history-section{padding:0 14px 14px;flex:1;}
-.history-item{padding:7px 0;border-bottom:1px solid var(--border);font-size:11px;}
-.hist-time{font-size:9px;color:var(--muted);font-family:var(--mono);}
-.hist-change{margin-top:2px;color:var(--text);}
+/* LOG PANE */
+.log-wrap{padding:10px 14px;flex:1;}
+.log-title{font-size:9px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin-bottom:8px;}
+.log-item{padding:7px 0;border-bottom:1px solid var(--border);}
+.log-time{font-size:9px;color:var(--muted);font-family:var(--mono);}
+.log-text{margin-top:2px;font-size:11px;color:var(--text);}
 
 /* MISC */
-.rdot{width:7px;height:7px;border-radius:50%;flex-shrink:0;}
+.rdot{width:6px;height:6px;border-radius:50%;flex-shrink:0;}
 .rdot-c{background:var(--crit);}
 .rdot-h{background:var(--high);}
 .rdot-m{background:var(--med);}
 .rdot-l{background:var(--low);}
+.sc-c{color:var(--crit);}
+.sc-h{color:var(--high);}
+.sc-m{color:var(--med);}
+.sc-l{color:var(--low);}
 .empty-state{text-align:center;padding:60px 20px;color:var(--muted);}
-.empty-state .es-icon{font-size:32px;margin-bottom:12px;display:block;}
-.empty-state p{font-size:12px;line-height:1.8;}
+.es-icon{font-size:28px;margin-bottom:10px;display:block;}
 </style>
 </head>
 <body>
 
+<!-- KEY MODAL -->
+<div class="modal-overlay" id="key-modal">
+  <div class="modal">
+    <div class="modal-title">Connect AI engine</div>
+    <div class="modal-sub">Enter your Anthropic API key to enable AI-powered risk analysis and the CSM assistant. Your key is stored in memory only and never sent anywhere except Anthropic's API.<br><br>Get a key at <a href="https://console.anthropic.com" target="_blank">console.anthropic.com</a></div>
+    <input type="password" id="key-input" placeholder="sk-ant-…" autocomplete="off"/>
+    <div class="modal-actions">
+      <button class="btn-secondary" onclick="closeKeyModal()">Cancel</button>
+      <button class="btn-primary" onclick="saveKey()">Save key</button>
+    </div>
+  </div>
+</div>
+
 <div class="topbar">
-  <div class="topbar-brand">
+  <div class="brand">
     <div class="brand-dot"></div>
-    <span class="brand-name">CS Risk Command</span>
-    <span class="brand-sub">· ITSM Operations</span>
+    <span class="brand-name">CS Risk Radar</span>
+    <span class="brand-badge">AI-POWERED</span>
   </div>
   <div class="topbar-stats">
-    <div class="ts"><div class="ts-val score-c" id="stat-crit">—</div><div class="ts-lbl">Critical</div></div>
-    <div class="ts"><div class="ts-val score-h" id="stat-high">—</div><div class="ts-lbl">High risk</div></div>
-    <div class="ts"><div class="ts-val" id="stat-total">—</div><div class="ts-lbl">Accounts</div></div>
-    <div class="ts"><div class="ts-val" id="stat-avg">—</div><div class="ts-lbl">Avg health</div></div>
+    <div class="ts"><div class="ts-val sc-c" id="s-crit">—</div><div class="ts-lbl">Critical</div></div>
+    <div class="ts"><div class="ts-val sc-h" id="s-high">—</div><div class="ts-lbl">High risk</div></div>
+    <div class="ts"><div class="ts-val" id="s-tot">—</div><div class="ts-lbl">Accounts</div></div>
+    <div class="ts"><div class="ts-val" id="s-avg">—</div><div class="ts-lbl">Avg health</div></div>
+  </div>
+  <div class="topbar-right">
+    <button class="btn-key" id="key-btn" onclick="openKeyModal()">⚙ Set API key</button>
   </div>
 </div>
 
 <div class="layout">
+  <!-- SIDEBAR -->
   <div class="sidebar">
     <div class="sidebar-head">
       <div class="search-wrap">
-        <span class="search-icon">⌕</span>
+        <span class="si">⌕</span>
         <input type="text" id="search" placeholder="Search accounts…" oninput="filterList()"/>
       </div>
     </div>
     <div class="sidebar-filters">
-      <button class="ftag active-all" data-f="" onclick="setFilter(this,'')">All</button>
-      <button class="ftag" data-f="Critical" onclick="setFilter(this,'Critical')">Crit</button>
-      <button class="ftag" data-f="High" onclick="setFilter(this,'High')">High</button>
-      <button class="ftag" data-f="Medium" onclick="setFilter(this,'Medium')">Med</button>
-      <button class="ftag" data-f="Low" onclick="setFilter(this,'Low')">Low</button>
+      <button class="ftag fa" data-f="" onclick="setF(this,'')">All</button>
+      <button class="ftag" data-f="Critical" onclick="setF(this,'Critical')">Crit</button>
+      <button class="ftag" data-f="High" onclick="setF(this,'High')">High</button>
+      <button class="ftag" data-f="Medium" onclick="setF(this,'Medium')">Med</button>
+      <button class="ftag" data-f="Low" onclick="setF(this,'Low')">Low</button>
     </div>
-    <div class="account-list" id="acc-list"></div>
+    <div class="acc-list" id="acc-list"></div>
   </div>
 
-  <div class="main">
-    <div class="center" id="center-panel">
-      <div class="empty-state">
-        <span class="es-icon">◎</span>
-        <p>Select an account from the list<br>to begin risk assessment</p>
+  <!-- CENTER -->
+  <div class="center" id="center">
+    <div class="empty-state">
+      <span class="es-icon">◎</span>
+      <p style="font-size:12px;line-height:1.8;color:var(--muted);">Select an account to begin<br>AI-powered risk assessment</p>
+    </div>
+  </div>
+
+  <!-- RIGHT PANEL -->
+  <div class="rpanel">
+    <div class="rp-tabs">
+      <div class="rp-tab active" onclick="switchTab('chat')">💬 AI Chat</div>
+      <div class="rp-tab" onclick="switchTab('details')">📋 Details</div>
+      <div class="rp-tab" onclick="switchTab('log')">⟳ Log</div>
+    </div>
+
+    <!-- CHAT PANE -->
+    <div class="rp-pane active" id="pane-chat" style="flex-direction:column;">
+      <div class="chat-quick" id="quick-btns">
+        <button class="qbtn" onclick="quickPrompt('scan')">🔍 Scan my portfolio for top risks</button>
+        <button class="qbtn" onclick="quickPrompt('renewal')">⏰ Which accounts need renewal attention?</button>
+        <button class="qbtn" onclick="quickPrompt('pattern')">📊 Any escalation patterns across industries?</button>
+      </div>
+      <div class="chat-messages" id="chat-msgs">
+        <div class="msg msg-ai">
+          <div class="msg-lbl">AI assistant</div>
+          <div class="msg-bubble">Hello! I'm your AI-powered customer success advisor. I have full context on all 200 accounts in your portfolio.<br><br>Select an account for a deep-dive analysis, or ask me anything about your portfolio — churn risks, renewal priorities, CSM workload, industry patterns, and more.</div>
+        </div>
+      </div>
+      <div class="chat-input-wrap">
+        <div class="chat-input-row">
+          <textarea class="chat-in" id="chat-in" placeholder="Ask anything about your accounts…" rows="1" onkeydown="chatKey(event)" oninput="autoResize(this)"></textarea>
+          <button class="btn-send" id="send-btn" onclick="sendChat()">↑</button>
+        </div>
+        <div class="chat-hint" id="chat-hint">Set API key to enable AI responses</div>
       </div>
     </div>
 
-    <div class="right-panel" id="right-panel">
-      <div class="rp-section">
-        <div class="rp-title">Account details</div>
-        <div id="rp-details"><span style="font-size:11px;color:var(--muted);">No account selected</span></div>
+    <!-- DETAILS PANE -->
+    <div class="rp-pane" id="pane-details" style="flex-direction:column;">
+      <div class="det-section">
+        <div class="det-title">Account details</div>
+        <div id="det-content"><span style="font-size:11px;color:var(--muted);">No account selected</span></div>
       </div>
-      <div class="notes-wrap" id="notes-wrap" style="display:none;">
-        <div class="notes-label">
-          <span>CSM notes</span>
-          <span class="notes-saved" id="notes-saved">Saved</span>
-        </div>
-        <textarea class="notes-input" id="notes-input" placeholder="Add notes about this account — last call, key contacts, blockers, next steps…" rows="6" oninput="saveNote()" onblur="saveNote()"></textarea>
-        <div class="notes-meta">
-          <span id="notes-chars">0 chars</span>
-          <span id="notes-ts" style="color:var(--muted);"></span>
-        </div>
+      <div class="notes-wrap" id="notes-wrap">
+        <div class="notes-lbl"><span>CSM notes</span><span class="notes-saved" id="notes-saved">Saved ✓</span></div>
+        <textarea class="notes-in" id="notes-in" placeholder="Last call, key contacts, blockers, next steps…" oninput="saveNote()" onblur="saveNote()"></textarea>
+        <div class="notes-meta"><span id="notes-chars">0 chars</span><span id="notes-ts"></span></div>
       </div>
-      <div class="history-section">
-        <div class="rp-title">Change log</div>
-        <div id="rp-history"><span style="font-size:11px;color:var(--muted);">No changes yet</span></div>
+    </div>
+
+    <!-- LOG PANE -->
+    <div class="rp-pane" id="pane-log" style="flex-direction:column;">
+      <div class="log-wrap">
+        <div class="log-title">Signal change log</div>
+        <div id="log-content"><span style="font-size:11px;color:var(--muted);">No changes yet</span></div>
       </div>
     </div>
   </div>
 </div>
 
 <script>
+// ─── DATA ───────────────────────────────────────────────────────────────────
 const CO=["Nexus Corp","Vantage Systems","Meridian Tech","Apex Solutions","Pinnacle Data","Orion Software","Stratum IT","Vertex Cloud","Zenith Analytics","Cobalt Systems","Ember Networks","Granite Logic","Harbor Digital","Ironwood Tech","Jasper IT","Keystone Apps","Lattice Ops","Maverick Cloud","Nova Systems","Orbit Platform","Paragon Tech","Quantum Data","Ridgeline IT","Summit Cloud","Torque Systems","Ultra Logic","Vector Works","Waypoint Tech","Xenon Data","Yellowstone IT","Zephyr Cloud","Accel Systems","Beacon Analytics","Cascade Tech","Delta Ops","Eclipse Data","Falcon IT","Galaxy Cloud","Haven Systems","Impact Tech","Junction IT","Kinetic Data","Luminary Cloud","Matrix Ops","Nectar Systems","Oasis Tech","Pulse Analytics","Quest Data","Radius Cloud","Solaris IT","Titan Systems","Unipath Tech","Vortex Data","Westfield IT","Axis Cloud","Blueprint Tech","Citadel Data","Dominion IT","Epoch Systems","Frontier Cloud","Glacier Tech","Horizon Data","Irongate IT","Junction Cloud","Keystroke Tech","Landmark Data","Momentum IT","Nucleus Cloud","Overture Tech","Pathfinder Data","Quantum IT","Riverstone Cloud","Scaffold Tech","Terrain Data","Uplift IT","Venture Cloud","Watershed Tech","Xeno Data","Yield IT","Zenwave Cloud","Arclight Tech","Bastion Data","Centrix IT","Daylight Cloud","Evercore Tech","Flashpoint Data","Groundwork IT","Hillside Cloud","Ingress Tech","Jetstream Data","Keyframe IT","Lowland Cloud","Motive Tech","Northstar Data","Outpost IT","Perimeter Cloud","Quartile Tech","Rockport Data","Skyline IT","Terraform Cloud"];
 const IND=["Healthcare","Finance","Manufacturing","Retail","Logistics","Technology","Government","Insurance","Telecom","Education"];
 const CSMS=["Sarah Chen","Marcus Williams","Priya Patel","Jake Anderson","Leila Hassan"];
-function seed(n){let x=Math.sin(n+1)*10000;return x-Math.floor(x);}
-function srng(s,a,b){return seed(s)*(b-a)+a;}
-function sri(s,a,b){return Math.floor(srng(s,a,b+.999));}
-function spk(s,a){return a[Math.floor(seed(s)*a.length)];}
-function initSig(br){return{tickets:br>.7?'High':br>.4?'Medium':'Low',usage:br>.7?'Low':br>.4?'Medium':'High',sentiment:br>.7?'Low':br>.4?'Medium':'High'};}
+function seed(n){let x=Math.sin(n+1)*1e4;return x-Math.floor(x);}
+function sr(s,a,b){return seed(s)*(b-a)+a;}
+function si(s,a,b){return Math.floor(sr(s,a,b+.999));}
+function sp(s,a){return a[Math.floor(seed(s)*a.length)];}
+function iSig(i){
+  // Base account health tendency (0=bad, 1=good) — drives overall risk direction
+  const base=sr(i*31+7,0,1);
+  // Each signal is 55% correlated with base, 45% independent — creates realistic mixed combos
+  const tRaw=sr(i*7+1,0,1)*.45+base*.55;   // tickets: high raw = many tickets (bad)
+  const uRaw=sr(i*13+2,0,1)*.45+base*.55;  // usage: high raw = good usage
+  const sRaw=sr(i*17+3,0,1)*.45+base*.55;  // sentiment: high raw = good sentiment
+  // Thresholds tuned for ~18% Critical, 27% High, 32% Medium, 23% Low
+  const tickets=tRaw<.32?'High':tRaw<.62?'Medium':'Low';
+  const usage=uRaw<.32?'Low':uRaw<.62?'Medium':'High';
+  const sentiment=sRaw<.30?'Low':sRaw<.60?'Medium':'High';
+  return{tickets,usage,sentiment};
+}
 const SM={tickets:{High:15,Medium:55,Low:85},usage:{Low:15,Medium:55,High:85},sentiment:{Low:15,Medium:50,High:85}};
 function calcH(sig){const t=SM.tickets[sig.tickets],u=SM.usage[sig.usage],s=SM.sentiment[sig.sentiment];return{hs:Math.round(t*.35+u*.40+s*.25),t,u,s};}
-function tier(hs){return hs<30?'Critical':hs<50?'High':hs<70?'Medium':'Low';}
+function getTier(hs){return hs<30?'Critical':hs<50?'High':hs<70?'Medium':'Low';}
 function tc(t){return t==='Critical'?'c':t==='High'?'h':t==='Medium'?'m':'l';}
-function sc(hs){return hs<30?'score-c':hs<50?'score-h':hs<70?'score-m':'score-l';}
-
+function sc(hs){return hs<30?'sc-c':hs<50?'sc-h':hs<70?'sc-m':'sc-l';}
+function fARR(v){return v>=1e6?'$'+(v/1e6).toFixed(1)+'M':'$'+Math.round(v/1e3)+'K';}
+const TC={Critical:'#f87171',High:'#fbbf24',Medium:'#60a5fa',Low:'#34d399'};
+const HINTS={tickets:{High:'8+ open tickets, 2+ critical — support queue overloaded',Medium:'2–7 tickets, some criticalities',Low:'0–1 tickets — running smoothly'},usage:{Low:'DAU declining, adoption <45%',Medium:'Stable usage, adoption 45–70%',High:'DAU growing, adoption >70%'},sentiment:{Low:'NPS negative, CSAT <3.0',Medium:'NPS neutral, CSAT 3–4',High:'NPS positive, CSAT >4.0'}};
+const PB={Critical:[{p:'pri-now',l:'NOW',t:'<strong>Trigger escalation protocol</strong> — loop in exec sponsor within 24 hours.'},{p:'pri-now',l:'NOW',t:'<strong>Schedule emergency health check call</strong> this week with a remediation plan.'},{p:'pri-soon',l:'SOON',t:'<strong>Audit open tickets</strong> — identify root cause pattern across technical and adoption.'},{p:'pri-soon',l:'SOON',t:'<strong>Assign dedicated support pod</strong> until health score exceeds 50.'},{p:'pri-plan',l:'PLAN',t:'<strong>Build a 30/60/90 recovery roadmap</strong> with milestones and success criteria.'}],High:[{p:'pri-now',l:'NOW',t:'<strong>Proactive outreach within 48 hours</strong> — own the narrative before escalation.'},{p:'pri-soon',l:'SOON',t:'<strong>Check renewal date</strong> — if under 90 days, escalate to leadership.'},{p:'pri-soon',l:'SOON',t:'<strong>Schedule a QBR</strong> focused on ROI realized vs. expected.'},{p:'pri-plan',l:'PLAN',t:'<strong>Create an adoption sprint</strong> — 30-day plan for top unused features.'}],Medium:[{p:'pri-soon',l:'SOON',t:'<strong>Schedule a mid-cycle health check-in</strong> — listen more than you speak.'},{p:'pri-soon',l:'SOON',t:'<strong>Share an adoption gaps report</strong> to drive deeper engagement.'},{p:'pri-plan',l:'PLAN',t:'<strong>Start renewal conversation early</strong> — 120+ days out is ideal.'}],Low:[{p:'pri-growth',l:'GROW',t:'<strong>Identify expansion opportunities</strong> — review contract vs. actual usage.'},{p:'pri-growth',l:'GROW',t:'<strong>Request a case study or G2 review</strong> — strike while sentiment is high.'},{p:'pri-plan',l:'PLAN',t:'<strong>Nominate for customer advisory board</strong> or beta program.'}]};
 const ALL=[];
-for(let i=0;i<200;i++){
-  const br=srng(i*7,0,1);const sig=initSig(br);const{hs}=calcH(sig);
-  ALL.push({id:i,co:CO[i%CO.length],ind:spk(i*3,IND),csm:CSMS[i%CSMS.length],arr:Math.round(srng(i*11,50,2000))*1000,dtr:sri(i*5,10,365),signals:{...sig},hs,tier:tier(hs),note:'',noteTs:null,simSignals:null});
-}
+for(let i=0;i<200;i++){const sig=iSig(i);const{hs}=calcH(sig);const base=sr(i*31+7,0,1);const arrScale=base<.3?sr(i*19,50,300):base<.65?sr(i*19,200,900):sr(i*19,500,2000);ALL.push({id:i,co:CO[i%CO.length],ind:sp(i*3,IND),csm:CSMS[i%CSMS.length],arr:Math.round(arrScale)*1000,dtr:si(i*5,14,365),signals:{...sig},hs,tier:getTier(hs),note:'',noteTs:null,simSignals:null});}
 ALL.sort((a,b)=>a.hs-b.hs);
 
-const TC={'Critical':'#f87171','High':'#fbbf24','Medium':'#60a5fa','Low':'#34d399'};
-let activeFilter='',selectedId=null,changeLog=[],simMode=false;
-function fmtARR(v){return v>=1e6?'$'+(v/1e6).toFixed(1)+'M':'$'+Math.round(v/1000)+'K';}
+// ─── STATE ────────────────────────────────────────────────────────────────
+let apiKey='',selId=null,simMode=false,activeFil='',changeLog=[],chatHistory=[],isChatLoading=false;
 
-function updateTopStats(){
-  document.getElementById('stat-crit').textContent=ALL.filter(a=>a.tier==='Critical').length;
-  document.getElementById('stat-high').textContent=ALL.filter(a=>a.tier==='High').length;
-  document.getElementById('stat-total').textContent=ALL.length;
-  document.getElementById('stat-avg').textContent=Math.round(ALL.reduce((s,a)=>s+a.hs,0)/ALL.length);
+// ─── API KEY ──────────────────────────────────────────────────────────────
+function openKeyModal(){document.getElementById('key-modal').classList.add('open');document.getElementById('key-input').value=apiKey;}
+function closeKeyModal(){document.getElementById('key-modal').classList.remove('open');}
+function saveKey(){
+  apiKey=document.getElementById('key-input').value.trim();
+  closeKeyModal();
+  const btn=document.getElementById('key-btn');
+  if(apiKey){btn.textContent='✓ AI connected';btn.classList.add('keyset');document.getElementById('chat-hint').textContent='Ask anything about your portfolio';}
+  else{btn.textContent='⚙ Set API key';btn.classList.remove('keyset');document.getElementById('chat-hint').textContent='Set API key to enable AI responses';}
 }
-function filterList(){
-  const q=document.getElementById('search').value.toLowerCase();
-  document.querySelectorAll('.acc-item').forEach(el=>{
-    const matchQ=!q||el.dataset.name.toLowerCase().includes(q);
-    const matchF=!activeFilter||el.dataset.tier===activeFilter;
-    el.style.display=(matchQ&&matchF)?'flex':'none';
-  });
+document.getElementById('key-modal').addEventListener('click',e=>{if(e.target===document.getElementById('key-modal'))closeKeyModal();});
+
+// ─── PORTFOLIO HELPERS ─────────────────────────────────────────────────────
+function portfolioSummary(){
+  const tiers=['Critical','High','Medium','Low'];
+  return tiers.map(t=>{
+    const accs=ALL.filter(a=>a.tier===t);
+    const sample=accs.slice(0,6).map(a=>`${a.co}(${a.hs},${a.ind},${a.dtr}d,${fARR(a.arr)})`).join(', ');
+    return `${t}(${accs.length}): ${sample}${accs.length>6?'…':''}`;
+  }).join('\n')+`\n\nCSMs: ${CSMS.map(c=>{const n=ALL.filter(a=>a.csm===c).length,cr=ALL.filter(a=>a.csm===c&&a.tier==='Critical').length,h=ALL.filter(a=>a.csm===c&&a.tier==='High').length;return`${c}(${n} accts, ${cr} crit, ${h} high)`;}).join(', ')}`;
 }
-function setFilter(el,f){
-  activeFilter=f;
-  document.querySelectorAll('.ftag').forEach(b=>{
-    b.className='ftag';
-    if(b.dataset.f===f){if(!f)b.classList.add('active-all');else if(f==='Critical')b.classList.add('active-c');else if(f==='High')b.classList.add('active-h');else if(f==='Medium')b.classList.add('active-m');else b.classList.add('active-l');}
-  });
-  filterList();
-}
-function buildList(){
-  document.getElementById('acc-list').innerHTML=ALL.map(a=>`
-    <div class="acc-item" data-id="${a.id}" data-name="${a.co}" data-tier="${a.tier}" onclick="selectAccount(${a.id})">
-      <div style="overflow:hidden;"><div class="acc-name">${a.co}</div><div class="acc-meta">${a.ind} · ${a.csm.split(' ')[0]}${a.note?' · 📝':''}</div></div>
-      <div><div class="acc-score score-${tc(a.tier)}" id="ls-${a.id}">${a.hs}</div><div style="display:flex;justify-content:center;margin-top:2px;"><div class="rdot rdot-${tc(a.tier)}" id="ld-${a.id}"></div></div></div>
-    </div>`).join('');
+function accContext(acc){
+  const{hs,t,u,s}=calcH(acc.signals);
+  return `Company: ${acc.co}\nIndustry: ${acc.ind}\nCSM: ${acc.csm}\nARR: ${fARR(acc.arr)}\nDays to renewal: ${acc.dtr}\nHealth score: ${hs}/100 (${getTier(hs)} risk)\nSupport tickets: ${acc.signals.tickets} → ${t}pts (35% weight)\nProduct usage: ${acc.signals.usage} → ${u}pts (40% weight)\nCustomer sentiment: ${acc.signals.sentiment} → ${s}pts (25% weight)\nCSM notes: ${acc.note||'(none)'}`;
 }
 
-const HINTS={tickets:{High:'8+ open tickets, 2+ critical — support queue overloaded',Medium:'2–7 tickets, minor criticalities — manageable but watch trend',Low:'0–1 tickets — platform running smoothly'},usage:{Low:'DAU declining, adoption <45%, frequent login gaps',Medium:'Stable usage, adoption 45–70%, occasional gaps',High:'DAU growing, adoption >70%, team fully activated'},sentiment:{Low:'NPS negative, CSAT <3.0 — customer is frustrated',Medium:'NPS neutral, CSAT 3–4 — relationship is transactional',High:'NPS positive, CSAT >4.0 — customer is a promoter'}};
-const PLAYBOOKS={Critical:[{pri:'pri-now',label:'NOW',text:'<strong>Trigger escalation protocol</strong> — loop in exec sponsor and VP of CS within 24 hours.'},{pri:'pri-now',label:'NOW',text:'<strong>Schedule emergency health check call</strong> this week with a concrete remediation plan.'},{pri:'pri-soon',label:'SOON',text:'<strong>Audit open tickets</strong> — identify root cause pattern across technical, onboarding, and adoption.'},{pri:'pri-soon',label:'SOON',text:'<strong>Review product usage drop</strong> — pull session data, identify which features went dark and when.'},{pri:'pri-soon',label:'SOON',text:'<strong>Assign dedicated support pod</strong> for this account until health score exceeds 50.'},{pri:'pri-plan',label:'PLAN',text:'<strong>Build a 30/60/90 recovery roadmap</strong> with milestones, owners, and success criteria.'}],High:[{pri:'pri-now',label:'NOW',text:'<strong>Proactive outreach within 48 hours</strong> — acknowledge friction before the customer escalates.'},{pri:'pri-soon',label:'SOON',text:'<strong>Check upcoming renewal date</strong> — if under 90 days, escalate to leadership immediately.'},{pri:'pri-soon',label:'SOON',text:'<strong>Schedule a QBR or value review</strong> focused on ROI realized vs. expected.'},{pri:'pri-soon',label:'SOON',text:'<strong>Identify a champion contact</strong> still engaged inside the account.'},{pri:'pri-plan',label:'PLAN',text:'<strong>Create a focused adoption sprint</strong> — pick 2–3 high-value features and build a 30-day plan.'}],Medium:[{pri:'pri-soon',label:'SOON',text:'<strong>Schedule a mid-cycle health check-in</strong> — listen more than you speak.'},{pri:'pri-soon',label:'SOON',text:'<strong>Share a personalized adoption gaps report</strong> to drive deeper platform engagement.'},{pri:'pri-plan',label:'PLAN',text:'<strong>Introduce community resources</strong> — user groups, knowledge base, webinars.'},{pri:'pri-plan',label:'PLAN',text:'<strong>Start renewal conversation early</strong> — 120+ days out is ideal to reinforce value.'}],Low:[{pri:'pri-growth',label:'GROW',text:'<strong>Identify expansion opportunities</strong> — review contract vs. actual usage across teams.'},{pri:'pri-growth',label:'GROW',text:'<strong>Request a case study or G2 review</strong> — strike while sentiment is high.'},{pri:'pri-plan',label:'PLAN',text:'<strong>Nominate for customer advisory board</strong> or beta program.'},{pri:'pri-plan',label:'PLAN',text:'<strong>Send a proactive value summary</strong> ahead of renewal with metrics and ROI.'}]};
+// ─── AI CALLS ─────────────────────────────────────────────────────────────
+const SYS=`You are an AI-powered Customer Success Risk Advisor embedded in an ITSM platform. You have real-time access to 200 enterprise accounts.
 
-function cardActiveClass(key,val){
-  if(key==='tickets') return val==='High'?'active-c':val==='Medium'?'active-h':'active-l';
-  return val==='High'?'active-l':val==='Medium'?'active-m-blue':'active-c';
+Scoring: Health score 0–100 = Tickets(35%) + Usage(40%) + Sentiment(25%).
+Signal scores: Tickets High=15,Med=55,Low=85 | Usage Low=15,Med=55,High=85 | Sentiment Low=15,Med=50,High=85
+Risk tiers: Critical<30, High 30–49, Medium 50–69, Low 70+.
+
+Be specific, data-driven, and actionable. Reference actual company names, scores, ARR, and renewal timelines in your answers. Keep responses concise but insightful. Use plain text — no markdown headers or bullet symbols.`;
+
+async function callAI(messages,onChunk,onDone,onError){
+  if(!apiKey){onError('No API key set. Click "Set API key" in the top right.');return;}
+  try{
+    const res=await fetch('https://api.anthropic.com/v1/messages',{
+      method:'POST',
+      headers:{'Content-Type':'application/json','x-api-key':apiKey,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
+      body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:1000,stream:true,system:SYS,messages})
+    });
+    if(!res.ok){const e=await res.json();onError(e.error?.message||'API error '+res.status);return;}
+    const reader=res.body.getReader();const dec=new TextDecoder();let buf='';
+    while(true){
+      const{done,value}=await reader.read();if(done)break;
+      buf+=dec.decode(value,{stream:true});const lines=buf.split('\n');buf=lines.pop();
+      for(const line of lines){
+        if(line.startsWith('data: ')){const d=line.slice(6);if(d==='[DONE]'){onDone();return;}
+          try{const p=JSON.parse(d);if(p.type==='content_block_delta'&&p.delta?.text)onChunk(p.delta.text);}catch(e){}
+        }
+      }
+    }
+    onDone();
+  }catch(e){onError('Connection error: '+e.message);}
 }
 
-function renderSignalCard(key,val,isSim,accId){
+// ─── AI ANALYSIS ──────────────────────────────────────────────────────────
+async function generateAnalysis(acc){
+  const el=document.getElementById('ai-analysis-body');
+  if(!el)return;
+  if(!apiKey){el.innerHTML=`<div class="ai-no-key">Set your API key to unlock AI-powered risk analysis for this account. <a onclick="openKeyModal()">Add key →</a></div>`;return;}
+  el.innerHTML=`<div style="display:flex;align-items:center;gap:8px;font-size:12px;color:var(--ai);"><div class="ai-spinner"></div>Analyzing ${acc.co}…</div>`;
+  const msgs=[{role:'user',content:`Analyze this account and give me:\n1. NARRATIVE: A 2-sentence risk assessment specific to this signal combination.\n2. FACTORS: Top 3 risk factors (one line each, most severe first).\n3. TRAJECTORY: What happens at 30 days, 60 days, and 90 days if no action is taken (one line each).\n4. ACTION: Single highest-priority action for the CSM this week (one sentence).\n\nFormat exactly as:\nNARRATIVE: [text]\nFACTOR1: [text]\nFACTOR2: [text]\nFACTOR3: [text]\n30D: [text]\n60D: [text]\n90D: [text]\nACTION: [text]\n\nAccount data:\n${accContext(acc)}\n\nPortfolio context:\n${portfolioSummary()}`}];
+  let raw='';
+  await callAI(msgs,chunk=>{raw+=chunk;},()=>{renderAnalysis(el,raw,acc.id);},err=>{el.innerHTML=`<div class="ai-error">${err}</div>`;});
+}
+function renderAnalysis(el,raw,accId){
+  const get=(key)=>{const m=raw.match(new RegExp(key+':\\s*(.+)'));return m?m[1].trim():'';};
+  const narr=get('NARRATIVE');const f1=get('FACTOR1');const f2=get('FACTOR2');const f3=get('FACTOR3');
+  const d30=get('30D');const d60=get('60D');const d90=get('90D');const act=get('ACTION');
+  el.innerHTML=`
+    ${narr?`<div class="ai-section"><div class="ai-section-title">Risk assessment</div><div class="ai-body"><p>${narr}</p></div></div>`:''}
+    ${f1?`<div class="ai-section"><div class="ai-section-title">Key risk factors</div>
+      ${[f1,f2,f3].filter(Boolean).map((f,i)=>`<div class="ai-factor"><span class="ai-factor-num">0${i+1}</span><span>${f}</span></div>`).join('')}
+    </div>`:''}
+    ${d30?`<div class="ai-section"><div class="ai-section-title">Predicted trajectory (no action)</div>
+      <div class="ai-traj">
+        <div class="traj-item"><div class="traj-period">30 days</div><div class="traj-text">${d30}</div></div>
+        <div class="traj-item"><div class="traj-period">60 days</div><div class="traj-text">${d60}</div></div>
+        <div class="traj-item"><div class="traj-period">90 days</div><div class="traj-text">${d90}</div></div>
+      </div>
+    </div>`:''}
+    ${act?`<div class="ai-section"><div class="ai-section-title">Priority action this week</div><div class="ai-action-box">${act}</div></div>`:''}
+    ${!narr&&!f1?`<div class="ai-body"><p>${raw}</p></div>`:''}
+  `;
+}
+
+// ─── CHAT ─────────────────────────────────────────────────────────────────
+function switchTab(name){
+  document.querySelectorAll('.rp-tab').forEach((t,i)=>{const names=['chat','details','log'];t.classList.toggle('active',names[i]===name);});
+  document.querySelectorAll('.rp-pane').forEach(p=>p.classList.remove('active'));
+  document.getElementById('pane-'+name).classList.add('active');
+}
+function autoResize(el){el.style.height='auto';el.style.height=Math.min(el.scrollHeight,90)+'px';}
+function chatKey(e){if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();sendChat();}}
+function scrollChat(){const c=document.getElementById('chat-msgs');if(c)c.scrollTop=c.scrollHeight;}
+function addMsg(role,text,streaming=false){
+  const msgs=document.getElementById('chat-msgs');
+  const div=document.createElement('div');div.className=`msg msg-${role}`;
+  const lbl=document.createElement('div');lbl.className='msg-lbl';lbl.textContent=role==='user'?'You':'AI assistant';
+  const bub=document.createElement('div');bub.className='msg-bubble'+(streaming?' streaming':'');
+  bub.innerHTML=text.replace(/\n/g,'<br>');
+  div.appendChild(lbl);div.appendChild(bub);msgs.appendChild(div);scrollChat();
+  return bub;
+}
+async function sendChat(text){
+  if(isChatLoading)return;
+  const inp=document.getElementById('chat-in');
+  const msg=(text||inp.value).trim();if(!msg)return;
+  if(!text){inp.value='';inp.style.height='auto';}
+  addMsg('user',msg);
+  const acc=selId!==null?ALL.find(a=>a.id===selId):null;
+  const ctx=acc?`\n\nCurrently selected account:\n${accContext(acc)}`:'';
+  const portCtx=`\nPortfolio overview:\n${portfolioSummary()}`;
+  chatHistory.push({role:'user',content:msg+ctx+portCtx});
+  isChatLoading=true;document.getElementById('send-btn').disabled=true;
+  const bub=addMsg('ai','',true);let resp='';
+  await callAI([...chatHistory],chunk=>{resp+=chunk;bub.innerHTML=resp.replace(/\n/g,'<br>');scrollChat();},
+    ()=>{bub.classList.remove('streaming');chatHistory.push({role:'assistant',content:resp});isChatLoading=false;document.getElementById('send-btn').disabled=false;},
+    err=>{bub.classList.remove('streaming');bub.innerHTML=`<span style="color:var(--crit)">${err}</span>`;isChatLoading=false;document.getElementById('send-btn').disabled=false;}
+  );
+  if(chatHistory.length>20){chatHistory=chatHistory.slice(-16);}
+}
+function quickPrompt(type){
+  switchTab('chat');
+  const acc=selId!==null?ALL.find(a=>a.id===selId):null;
+  const prompts={
+    scan:`Scan my full portfolio of 200 accounts and identify the top 5 highest-priority escalation risks right now. Consider health score, ARR at risk, days to renewal, and signal combinations. Be specific about why each is urgent.`,
+    renewal:`Which accounts need my attention for upcoming renewals? Focus on accounts where low health score combines with a renewal date under 90 days. Rank them by urgency and suggest what to do for each.`,
+    pattern:`Analyze escalation patterns across industries and CSMs in my portfolio. Are certain industries trending worse? Is any CSM's book of business more at risk than others? What does the data suggest?`,
+    analyze:acc?`Give me a detailed risk analysis of ${acc.co}. What's driving their ${acc.tier} risk status, what's likely to happen if I don't act, and what should I do first?`:`Please select an account first, then I can give you a detailed analysis.`,
+    email:acc?`Draft a proactive outreach email from a CSM to the ${acc.co} team. The account has a health score of ${acc.hs}/100 (${acc.tier} risk). The tone should be helpful and consultative, not alarming. Keep it under 150 words.`:`Please select an account first to draft an outreach email.`,
+    explain:acc?`Explain in plain language why ${acc.co} has a health score of ${acc.hs}/100. Break down what each signal (tickets: ${acc.signals.tickets}, usage: ${acc.signals.usage}, sentiment: ${acc.signals.sentiment}) means in practice and how they combine.`:`Please select an account first.`,
+  };
+  sendChat(prompts[type]||prompts.scan);
+}
+
+// ─── RENDER ───────────────────────────────────────────────────────────────
+function cardAC(key,val){if(key==='tickets')return val==='High'?'ac':val==='Medium'?'ah':'al';return val==='High'?'al':val==='Medium'?'am':'ac';}
+function sigCard(key,val,isSim,accId){
   const icons={tickets:'🎫',usage:'📊',sentiment:'💬'};
   const names={tickets:'Support tickets',usage:'Product usage',sentiment:'Customer sentiment'};
-  const descs={tickets:'Ticket volume & severity',usage:'DAU trend & feature adoption',sentiment:'NPS & CSAT signals'};
-  const weights={tickets:'35% weight',usage:'40% weight',sentiment:'25% weight'};
+  const descs={tickets:'Ticket volume & severity',usage:'DAU trend & adoption',sentiment:'NPS & CSAT signals'};
+  const wts={tickets:'35% weight',usage:'40% weight',sentiment:'25% weight'};
   const display=key==='tickets'?['High','Medium','Low']:['Low','Medium','High'];
-  const simClass=isSim?'sim-card':cardActiveClass(key,val);
-  const fn=isSim?`setSimSignal(${accId},'${key}'`:`setSignal(${accId},'${key}'`;
-  return `<div class="signal-card ${simClass}" id="${isSim?'sim':'cur'}-card-${key}">
-    <span class="signal-icon">${icons[key]}</span>
-    <div class="signal-label">${descs[key]}</div>
-    <div class="signal-name">${names[key]}</div>
-    <div class="signal-weight">${weights[key]}</div>
-    <div class="toggle-group">
-      ${display.map(lv=>{
-        const sel=val===lv;
-        let cls='';
-        if(sel){if(isSim){cls='sel-sim';}else{cls=lv==='High'&&key==='tickets'?'sel-h':lv==='Medium'&&key==='tickets'?'sel-m':lv==='Low'&&key==='tickets'?'sel-l':lv==='High'?'sel-l':lv==='Medium'?'sel-m':'sel-h';}}
-        return `<button class="tog ${cls}" onclick="${fn},'${lv}')">${lv}</button>`;
-      }).join('')}
-    </div>
-    <div class="signal-hint" id="${isSim?'sim':'cur'}-hint-${key}">${HINTS[key][val]}</div>
+  const cls=isSim?'sim-c':cardAC(key,val);
+  const fn=isSim?`setSimSig(${accId},'${key}'`:`setSig(${accId},'${key}'`;
+  return `<div class="sig-card ${cls}" id="${isSim?'s':'c'}-c-${key}">
+    <span class="sig-icon">${icons[key]}</span>
+    <div class="sig-lbl">${descs[key]}</div>
+    <div class="sig-name">${names[key]}</div>
+    <div class="sig-wt">${wts[key]}</div>
+    <div class="tog-grp">${display.map(lv=>{const sel=val===lv;let cls='';
+      if(sel){if(isSim)cls='ts';else cls=lv==='High'&&key==='tickets'?'th':lv==='Medium'&&key==='tickets'?'tm':lv==='Low'&&key==='tickets'?'tl':lv==='High'?'tl':lv==='Medium'?'tm':'th';}
+      return`<button class="tog ${cls}" onclick="${fn},'${lv}')">${lv}</button>`;}).join('')}</div>
+    <div class="sig-hint" id="${isSim?'s':'c'}-h-${key}">${HINTS[key][val]}</div>
   </div>`;
 }
-
-function scoreBar(label,val,key,prefix='sb'){
-  const color=val>=70?'#34d399':val>=50?'#60a5fa':val>=30?'#fbbf24':'#f87171';
-  return `<div class="sb-item"><div class="sb-lbl">${label}</div><div class="sb-val" style="color:${color}" id="${prefix}-${key}">${val}</div><div class="sb-bar-track"><div class="sb-bar" style="width:${val}%;background:${color};" id="${prefix}-bar-${key}"></div></div></div>`;
-}
-
-function renderScorePanel(hs,t,u,s,isSim){
-  const tr=tier(hs);
-  const col=TC[tr];
-  const id=isSim?'sim':'main';
-  return `<div class="score-panel${isSim?' sim-panel':''}" id="${id}-score-panel">
-    <div class="gauge-wrap">
-      <canvas id="${id}-gauge" width="120" height="120"></canvas>
-      <div class="gauge-center">
-        <div class="gauge-num ${sc(hs)}" id="${id}-gauge-num" style="${isSim?'color:var(--sim)':''}">${hs}</div>
-        <div class="gauge-denom">/ 100</div>
-      </div>
-    </div>
-    <div class="score-info">
-      <div class="risk-badge-big ${isSim?'':'risk-'+tc(tr)}" id="${id}-risk-badge" style="${isSim?'background:var(--simbg);border:1px solid var(--simborder);color:var(--sim);':''}" >
-        <div class="rdot ${isSim?'':'rdot-'+tc(tr)}" style="${isSim?'background:var(--sim);':''}"></div>
-        <span id="${id}-risk-label">${tr} Risk${isSim?' (simulated)':''}</span>
-      </div>
-      <div class="score-breakdown">
-        ${scoreBar('Tickets',t,'tickets',id+'-sb')}
-        ${scoreBar('Usage',u,'usage',id+'-sb')}
-        ${scoreBar('Sentiment',s,'sentiment',id+'-sb')}
-      </div>
-    </div>
-  </div>`;
-}
-
-function drawGauge(canvasId,score,color){
-  const cv=document.getElementById(canvasId);
-  if(!cv)return;
-  const c=cv.getContext('2d'),w=120,h=120,cx=w/2,cy=h/2,r=44,lw=9;
-  c.clearRect(0,0,w,h);
-  const start=Math.PI*.75,end=Math.PI*2.25;
-  c.beginPath();c.arc(cx,cy,r,start,end);c.strokeStyle='rgba(255,255,255,0.08)';c.lineWidth=lw;c.lineCap='round';c.stroke();
-  const pct=Math.max(0,Math.min(100,score))/100,arcEnd=start+pct*(end-start);
-  c.beginPath();c.arc(cx,cy,r,start,arcEnd);c.strokeStyle=color;c.lineWidth=lw;c.lineCap='round';c.stroke();
-  const dx=cx+r*Math.cos(arcEnd),dy=cy+r*Math.sin(arcEnd);
-  c.beginPath();c.arc(dx,dy,4,0,Math.PI*2);c.fillStyle=color;c.fill();
-}
+function sBar(label,val,key,pfx='sb'){const c=val>=70?'#34d399':val>=50?'#60a5fa':val>=30?'#fbbf24':'#f87171';return`<div class="sb"><div class="sb-l">${label}</div><div class="sb-v" style="color:${c}" id="${pfx}-${key}">${val}</div><div class="sb-t"><div class="sb-b" style="width:${val}%;background:${c};" id="${pfx}-b-${key}"></div></div></div>`;}
+function drawG(id,score,color){const cv=document.getElementById(id);if(!cv)return;const c=cv.getContext('2d'),w=110,h=110,cx=w/2,cy=h/2,r=40,lw=8;c.clearRect(0,0,w,h);const s=Math.PI*.75,e=Math.PI*2.25;c.beginPath();c.arc(cx,cy,r,s,e);c.strokeStyle='rgba(255,255,255,0.08)';c.lineWidth=lw;c.lineCap='round';c.stroke();const ae=s+(Math.max(0,Math.min(100,score))/100)*(e-s);c.beginPath();c.arc(cx,cy,r,s,ae);c.strokeStyle=color;c.lineWidth=lw;c.lineCap='round';c.stroke();const dx=cx+r*Math.cos(ae),dy=cy+r*Math.sin(ae);c.beginPath();c.arc(dx,dy,4,0,Math.PI*2);c.fillStyle=color;c.fill();}
 
 function renderCenter(acc){
-  const panel=document.getElementById('center-panel');
-  const daysWarn=acc.dtr<60?`<span class="renewal-warn" style="background:rgba(248,113,113,.12);color:#f87171;border:1px solid rgba(248,113,113,.3);">${acc.dtr}d to renewal</span>`:acc.dtr<120?`<span class="renewal-warn" style="background:rgba(251,191,36,.12);color:#fbbf24;border:1px solid rgba(251,191,36,.3);">${acc.dtr}d to renewal</span>`:`<span class="renewal-warn" style="background:rgba(52,211,153,.08);color:#34d399;border:1px solid rgba(52,211,153,.2);">${acc.dtr}d to renewal</span>`;
-  const{hs,t,u,s}=calcH(acc.signals);
-  const tr=tier(hs);
-
-  let html=`<div class="acc-header">
-    <div>
-      <div class="acc-title">${acc.co}</div>
-      <div class="acc-subtitle">
-        <span class="acc-pill">Industry <span>${acc.ind}</span></span>
-        <span class="acc-pill">CSM <span>${acc.csm}</span></span>
-        <span class="acc-pill">ARR <span>${fmtARR(acc.arr)}</span></span>
-        ${daysWarn}
-      </div>
-    </div>
-    <div class="header-actions">
-      ${simMode?`<button class="btn-apply" onclick="applySimulation(${acc.id})">Apply scenario</button><button class="btn-discard" onclick="discardSim(${acc.id})">Discard</button>`:
-      `<button class="btn-sim" onclick="startSim(${acc.id})">⟳ Simulate scenario</button>`}
-    </div>
+  const{hs,t,u,s}=calcH(acc.signals);const tr=getTier(hs);const trClass=tc(tr);
+  const dw=acc.dtr<60?`style="background:rgba(248,113,113,.1);color:#f87171;border:1px solid rgba(248,113,113,.3);"`:acc.dtr<120?`style="background:rgba(251,191,36,.1);color:#fbbf24;border:1px solid rgba(251,191,36,.3);"`:` style="background:rgba(52,211,153,.06);color:#34d399;border:1px solid rgba(52,211,153,.2);"`;
+  let html=`<div class="acc-hdr">
+    <div><div class="acc-title">${acc.co}</div>
+    <div class="acc-pills">
+      <span class="pill">Industry <span>${acc.ind}</span></span>
+      <span class="pill">CSM <span>${acc.csm}</span></span>
+      <span class="pill">ARR <span>${fARR(acc.arr)}</span></span>
+      <span class="ren-pill" ${dw}>${acc.dtr}d to renewal</span>
+    </div></div>
+    <div class="hdr-btns">${simMode?`<button class="btn-apply" onclick="applyS(${acc.id})">Apply</button><button class="btn-discard" onclick="discardS(${acc.id})">Discard</button>`:`<button class="btn-sim" onclick="startS(${acc.id})">⟳ Simulate</button>`}</div>
   </div>`;
 
   if(simMode&&acc.simSignals){
-    const sim=acc.simSignals;
-    const{hs:shs,t:st,u:su,s:ss}=calcH(sim);
-    const delta=shs-hs;
-    const deltaCls=delta>0?'delta-pos':delta<0?'delta-neg':'delta-neu';
-    const deltaStr=delta>0?'+'+delta:delta===0?'±0':delta;
-
-    html+=`<div class="sim-banner"><div class="sim-banner-dot"></div>Simulation mode active — adjust the simulated signals below to explore what-if scenarios</div>`;
-    html+=`<div class="sim-split">
-      <div class="sim-col sim-col-current">
-        <span class="sim-col-label">Current state</span>
-        <div class="signal-grid" style="grid-template-columns:1fr;">${['tickets','usage','sentiment'].map(k=>renderSignalCard(k,acc.signals[k],false,acc.id)).join('')}</div>
-      </div>
-      <div class="sim-col sim-col-simulated">
-        <span class="sim-col-label">↯ Simulated scenario</span>
-        <div class="signal-grid" style="grid-template-columns:1fr;">${['tickets','usage','sentiment'].map(k=>renderSignalCard(k,sim[k],true,acc.id)).join('')}</div>
-      </div>
-    </div>`;
-    html+=`<div class="score-compare">
-      <div class="score-box">
-        <div class="score-box-label">Current score</div>
-        <div class="score-box-num ${sc(hs)}">${hs}</div>
-        <span class="score-box-tier risk-${tc(tr)}">${tr}</span>
-      </div>
-      <div class="score-compare-divider">
-        <div class="delta-badge ${deltaCls}">${deltaStr}</div>
-        <div class="delta-label">pts delta</div>
-      </div>
-      <div class="score-box sim-box">
-        <div class="score-box-label">Simulated score</div>
-        <div class="score-box-num" style="color:var(--sim)">${shs}</div>
-        <span class="score-box-tier" style="background:var(--simbg);border:1px solid var(--simborder);color:var(--sim);">${tier(shs)}</span>
-      </div>
-    </div>`;
-    html+=`<div class="playbook" id="playbook"><div class="pb-head" style="color:var(--sim)">Simulated playbook · ${tier(shs)}</div><div class="pb-actions">${PLAYBOOKS[tier(shs)].map((a,i)=>`<div class="pb-action"><div class="pb-num">0${i+1}</div><div class="pb-text">${a.text}</div><div class="pb-priority ${a.pri}">${a.label}</div></div>`).join('')}</div></div>`;
-
+    const sim=acc.simSignals;const{hs:shs}=calcH(sim);const delta=shs-hs;
+    const dCls=delta>0?'dp':delta<0?'dn':'dz';const dStr=delta>0?'+'+delta:delta===0?'±0':delta;
+    const str=getTier(shs);
+    html+=`<div class="sim-banner"><div class="sim-dot"></div>Simulation mode — adjust signals on the right to explore what-if scenarios</div>
+    <div class="sim-split">
+      <div class="sim-col sim-col-cur"><span class="sim-col-lbl cur-lbl">Current state</span><div>${['tickets','usage','sentiment'].map(k=>sigCard(k,acc.signals[k],false,acc.id)).join('')}</div></div>
+      <div class="sim-col sim-col-sim"><span class="sim-col-lbl sim-lbl">↯ Simulated</span><div>${['tickets','usage','sentiment'].map(k=>sigCard(k,sim[k],true,acc.id)).join('')}</div></div>
+    </div>
+    <div class="score-compare">
+      <div class="score-box"><div class="sbox-lbl">Current score</div><div class="sbox-num ${sc(hs)}">${hs}</div><span class="sbox-tier r${trClass}">${tr}</span></div>
+      <div class="delta-wrap"><div class="delta ${dCls}">${dStr}</div><div class="delta-lbl">pts</div></div>
+      <div class="score-box sim-box"><div class="sbox-lbl sim">Simulated score</div><div class="sbox-num" style="color:var(--sim)">${shs}</div><span class="sbox-tier" style="background:var(--simbg);border:1px solid var(--simborder);color:var(--sim);">${str}</span></div>
+    </div>
+    <div class="playbook"><div class="pb-head" style="color:var(--sim)">Simulated playbook · ${str}</div><div class="pb-actions">${PB[str].map((a,i)=>`<div class="pb-action"><div class="pb-num">0${i+1}</div><div class="pb-text">${a.t}</div><div class="pb-pri ${a.p}">${a.l}</div></div>`).join('')}</div></div>`;
   } else {
-    html+=`<div class="signal-grid">${['tickets','usage','sentiment'].map(k=>renderSignalCard(k,acc.signals[k],false,acc.id)).join('')}</div>`;
-    html+=renderScorePanel(hs,t,u,s,false);
-    html+=`<div class="playbook" id="playbook"><div class="pb-head">CSM action playbook · ${tr}</div><div class="pb-actions">${PLAYBOOKS[tr].map((a,i)=>`<div class="pb-action"><div class="pb-num">0${i+1}</div><div class="pb-text">${a.text}</div><div class="pb-priority ${a.pri}">${a.label}</div></div>`).join('')}</div></div>`;
+    html+=`<div class="sig-grid">${['tickets','usage','sentiment'].map(k=>sigCard(k,acc.signals[k],false,acc.id)).join('')}</div>
+    <div class="score-panel"><div class="gauge-wrap"><canvas id="main-g" width="110" height="110"></canvas><div class="gauge-center"><div class="g-num ${sc(hs)}" id="g-num">${hs}</div><div class="g-den">/ 100</div></div></div>
+    <div class="score-info">
+      <div class="risk-badge r${trClass}" id="r-badge"><div class="rdot rdot-${trClass}"></div><span id="r-lbl">${tr} Risk</span></div>
+      <div class="sbs">${sBar('Tickets',t,'tickets')} ${sBar('Usage',u,'usage')} ${sBar('Sentiment',s,'sentiment')}</div>
+    </div></div>
+    <div class="ai-card"><div class="ai-card-head"><div class="ai-card-title">✦ AI risk analysis</div><button class="btn-regen" onclick="generateAnalysis(ALL.find(a=>a.id==${acc.id}))">Regenerate</button></div><div id="ai-analysis-body"></div></div>
+    <div class="playbook" id="playbook"><div class="pb-head">CSM playbook · ${tr}</div><div class="pb-actions">${PB[tr].map((a,i)=>`<div class="pb-action"><div class="pb-num">0${i+1}</div><div class="pb-text">${a.t}</div><div class="pb-pri ${a.p}">${a.l}</div></div>`).join('')}</div></div>`;
   }
-
-  panel.innerHTML=html;
-  if(!simMode) drawGauge('main-gauge',hs,TC[tr]);
+  document.getElementById('center').innerHTML=html;
+  if(!simMode){drawG('main-g',hs,TC[tr]);generateAnalysis(acc);}
+  // Update quick chat buttons to include account-specific options
+  const qb=document.getElementById('quick-btns');
+  if(qb)qb.innerHTML=`<button class="qbtn" onclick="quickPrompt('scan')">🔍 Scan portfolio for top risks</button><button class="qbtn" onclick="quickPrompt('analyze')">✦ Analyze ${acc.co}</button><button class="qbtn" onclick="quickPrompt('email')">✉ Draft outreach for ${acc.co}</button><button class="qbtn" onclick="quickPrompt('renewal')">⏰ Renewal priorities</button><button class="qbtn" onclick="quickPrompt('explain')">? Explain this score</button>`;
 }
-
-function startSim(id){
-  const acc=ALL.find(a=>a.id===id);
-  acc.simSignals={...acc.signals};
-  simMode=true;
-  renderCenter(acc);
-}
-function discardSim(id){
-  const acc=ALL.find(a=>a.id===id);
-  acc.simSignals=null;simMode=false;
-  renderCenter(acc);
-}
-function applySimulation(id){
-  const acc=ALL.find(a=>a.id===id);
-  const prev={...acc.signals};
-  acc.signals={...acc.simSignals};
+function renderDetails(acc){
   const{hs}=calcH(acc.signals);
-  acc.hs=hs;acc.tier=tier(hs);
-  acc.simSignals=null;simMode=false;
-  logChange(acc.co,'scenario applied','—','—',hs);
-  updateListItem(acc);
-  updateTopStats();
-  renderCenter(acc);
+  document.getElementById('det-content').innerHTML=`
+    <div class="det-row"><span class="det-lbl">Industry</span><span class="det-val" style="font-family:var(--sans)">${acc.ind}</span></div>
+    <div class="det-row"><span class="det-lbl">CSM</span><span class="det-val" style="font-family:var(--sans)">${acc.csm}</span></div>
+    <div class="det-row"><span class="det-lbl">ARR</span><span class="det-val">${fARR(acc.arr)}</span></div>
+    <div class="det-row"><span class="det-lbl">Renewal</span><span class="det-val">${acc.dtr} days</span></div>
+    <div class="det-row"><span class="det-lbl">Health</span><span class="det-val ${sc(hs)}">${hs}/100</span></div>`;
+  const ni=document.getElementById('notes-in');if(ni){ni.value=acc.note||'';}
+  document.getElementById('notes-chars').textContent=(acc.note||'').length+' chars';
+  if(acc.noteTs){const ts=acc.noteTs;document.getElementById('notes-ts').textContent=ts.getHours().toString().padStart(2,'0')+':'+ts.getMinutes().toString().padStart(2,'0');}
+  else document.getElementById('notes-ts').textContent='';
+}
+
+// ─── SIGNAL UPDATES ───────────────────────────────────────────────────────
+function setSig(id,key,val){
+  const acc=ALL.find(a=>a.id===id);const prev=acc.signals[key];if(prev===val)return;
+  acc.signals[key]=val;const{hs,t,u,s}=calcH(acc.signals);acc.hs=hs;acc.tier=getTier(hs);
+  logChange(acc.co,key,prev,val,hs);updateListItem(acc);updateTopStats();
+  const card=document.getElementById(`c-c-${key}`);
+  if(card){card.className=`sig-card ${cardAC(key,val)}`;const hint=document.getElementById(`c-h-${key}`);if(hint)hint.textContent=HINTS[key][val];
+    card.querySelectorAll('.tog').forEach(b=>{const bv=b.textContent.trim();const sel=bv===val;b.className='tog '+(sel?(bv==='High'&&key==='tickets'?'th':bv==='Medium'&&key==='tickets'?'tm':bv==='Low'&&key==='tickets'?'tl':bv==='High'?'tl':bv==='Medium'?'tm':'th'):'');});}
+  const gn=document.getElementById('g-num');if(gn){gn.textContent=hs;gn.className=`g-num ${sc(hs)}`;}
+  drawG('main-g',hs,TC[acc.tier]);
+  const rb=document.getElementById('r-badge');const rl=document.getElementById('r-lbl');
+  if(rb&&rl){rb.className=`risk-badge r${tc(acc.tier)}`;rb.querySelector('.rdot').className=`rdot rdot-${tc(acc.tier)}`;rl.textContent=acc.tier+' Risk';}
+  [{k:'tickets',v:t},{k:'usage',v:u},{k:'sentiment',v:s}].forEach(({k,v})=>{const el=document.getElementById(`sb-${k}`),bar=document.getElementById(`sb-b-${k}`);const col=v>=70?'#34d399':v>=50?'#60a5fa':v>=30?'#fbbf24':'#f87171';if(el){el.textContent=v;el.style.color=col;}if(bar){bar.style.width=v+'%';bar.style.background=col;}});
+  const oldTier=acc.tier;if(document.getElementById('playbook')){const newTier=getTier(hs);if(oldTier!==newTier){document.getElementById('playbook').innerHTML=`<div class="pb-head">CSM playbook · ${newTier}</div><div class="pb-actions">${PB[newTier].map((a,i)=>`<div class="pb-action"><div class="pb-num">0${i+1}</div><div class="pb-text">${a.t}</div><div class="pb-pri ${a.p}">${a.l}</div></div>`).join('')}</div>`;}}
   renderChangeLog();
 }
-function setSimSignal(id,key,val){
-  const acc=ALL.find(a=>a.id===id);
-  if(!acc.simSignals)return;
-  acc.simSignals[key]=val;
-  renderCenter(acc);
-}
-function setSignal(id,key,val){
-  const acc=ALL.find(a=>a.id===id);
-  const prev=acc.signals[key];
-  if(prev===val)return;
-  acc.signals[key]=val;
-  const{hs,t,u,s}=calcH(acc.signals);
-  acc.hs=hs;acc.tier=tier(hs);
-  logChange(acc.co,key,prev,val,hs);
-  updateListItem(acc);
-  updateTopStats();
+function setSimSig(id,key,val){const acc=ALL.find(a=>a.id===id);if(!acc.simSignals)return;acc.simSignals[key]=val;renderCenter(acc);}
+function startS(id){const acc=ALL.find(a=>a.id===id);acc.simSignals={...acc.signals};simMode=true;renderCenter(acc);}
+function discardS(id){const acc=ALL.find(a=>a.id===id);acc.simSignals=null;simMode=false;renderCenter(acc);}
+function applyS(id){const acc=ALL.find(a=>a.id===id);acc.signals={...acc.simSignals};const{hs}=calcH(acc.signals);acc.hs=hs;acc.tier=getTier(hs);acc.simSignals=null;simMode=false;logChange(acc.co,'scenario','—','applied',hs);updateListItem(acc);updateTopStats();renderCenter(acc);renderChangeLog();}
 
-  // Live update without full re-render
-  const card=document.getElementById(`cur-card-${key}`);
-  if(card){
-    card.className=`signal-card ${cardActiveClass(key,val)}`;
-    const hint=document.getElementById(`cur-hint-${key}`);
-    if(hint)hint.textContent=HINTS[key][val];
-    card.querySelectorAll('.tog').forEach(btn=>{
-      const bv=btn.textContent.trim();const sel=bv===val;
-      btn.className='tog '+(sel?(bv==='High'&&key==='tickets'?'sel-h':bv==='Medium'&&key==='tickets'?'sel-m':bv==='Low'&&key==='tickets'?'sel-l':bv==='High'?'sel-l':bv==='Medium'?'sel-m':'sel-h'):'');
-    });
-  }
-  const gn=document.getElementById('main-gauge-num');if(gn){gn.textContent=hs;gn.className=`gauge-num ${sc(hs)}`;}
-  drawGauge('main-gauge',hs,TC[acc.tier]);
-  const badge=document.getElementById('main-risk-badge');const lbl=document.getElementById('main-risk-label');
-  if(badge&&lbl){badge.className=`risk-badge-big risk-${tc(acc.tier)}`;badge.querySelector('.rdot').className=`rdot rdot-${tc(acc.tier)}`;lbl.textContent=acc.tier+' Risk';}
-  [{k:'tickets',v:t},{k:'usage',v:u},{k:'sentiment',v:s}].forEach(({k,v})=>{
-    const el=document.getElementById(`main-sb-${k}`),bar=document.getElementById(`main-sb-bar-${k}`);
-    const col=v>=70?'#34d399':v>=50?'#60a5fa':v>=30?'#fbbf24':'#f87171';
-    if(el){el.textContent=v;el.style.color=col;}if(bar){bar.style.width=v+'%';bar.style.background=col;}
-  });
-  const oldTier=tier(acc.hs-1);
-  if(oldTier!==acc.tier){const pb=document.getElementById('playbook');if(pb){pb.innerHTML=`<div class="pb-head">CSM action playbook · ${acc.tier}</div><div class="pb-actions">${PLAYBOOKS[acc.tier].map((a,i)=>`<div class="pb-action"><div class="pb-num">0${i+1}</div><div class="pb-text">${a.text}</div><div class="pb-priority ${a.pri}">${a.label}</div></div>`).join('')}</div>`;}}
-  renderChangeLog();
-}
-
-function updateListItem(acc){
-  const s=document.getElementById(`ls-${acc.id}`),d=document.getElementById(`ld-${acc.id}`),li=document.querySelector(`.acc-item[data-id="${acc.id}"]`);
-  if(s){s.textContent=acc.hs;s.className=`acc-score score-${tc(acc.tier)}`;}
-  if(d)d.className=`rdot rdot-${tc(acc.tier)}`;
-  if(li){li.dataset.tier=acc.tier;li.querySelector('.acc-meta').textContent=`${acc.ind} · ${acc.csm.split(' ')[0]}${acc.note?' · 📝':''}`;}
-}
-
+// ─── NOTES ────────────────────────────────────────────────────────────────
 function saveNote(){
-  const acc=ALL.find(a=>a.id===selectedId);if(!acc)return;
-  const ta=document.getElementById('notes-input');if(!ta)return;
+  const acc=ALL.find(a=>a.id===selId);if(!acc)return;
+  const ta=document.getElementById('notes-in');if(!ta)return;
   acc.note=ta.value;acc.noteTs=new Date();
   document.getElementById('notes-chars').textContent=acc.note.length+' chars';
   const ts=acc.noteTs;document.getElementById('notes-ts').textContent=ts.getHours().toString().padStart(2,'0')+':'+ts.getMinutes().toString().padStart(2,'0');
-  const saved=document.getElementById('notes-saved');saved.classList.add('show');setTimeout(()=>saved.classList.remove('show'),2000);
+  const sv=document.getElementById('notes-saved');sv.classList.add('show');setTimeout(()=>sv.classList.remove('show'),1800);
   updateListItem(acc);
 }
 
-function logChange(co,key,from,to,newScore){
+// ─── LOG ──────────────────────────────────────────────────────────────────
+function logChange(co,key,from,to,score){
   const now=new Date(),ts=now.getHours().toString().padStart(2,'0')+':'+now.getMinutes().toString().padStart(2,'0');
-  const label={tickets:'Tickets',usage:'Usage',sentiment:'Sentiment','scenario applied':'Scenario'}[key]||key;
-  changeLog.unshift({ts,co,label,from,to,newScore});
-  if(changeLog.length>20)changeLog.pop();
+  const lbl={tickets:'Tickets',usage:'Usage',sentiment:'Sentiment',scenario:'Scenario'}[key]||key;
+  changeLog.unshift({ts,co,lbl,from,to,score});if(changeLog.length>30)changeLog.pop();
 }
 function renderChangeLog(){
-  const el=document.getElementById('rp-history');if(!el)return;
-  if(!changeLog.length){el.innerHTML='<span style="font-size:11px;color:var(--muted);">No changes yet</span>';return;}
-  el.innerHTML=changeLog.slice(0,10).map(c=>`<div class="history-item"><div class="hist-time">${c.ts} · ${c.co.split(' ')[0]}</div><div class="hist-change">${c.label}${c.from!=='—'?`: ${c.from} → ${c.to}`:' applied'} <span style="color:var(--muted2);">(${c.newScore})</span></div></div>`).join('');
+  const el=document.getElementById('log-content');if(!el)return;
+  if(!changeLog.length){el.innerHTML='<span style="font-size:11px;color:var(--muted);">No changes recorded yet</span>';return;}
+  el.innerHTML=changeLog.slice(0,15).map(c=>`<div class="log-item"><div class="log-time">${c.ts} · ${c.co.split(' ')[0]}</div><div class="log-text">${c.lbl}${c.from!=='—'?`: ${c.from} → ${c.to}`:' '+c.to} <span style="color:var(--muted2);">(${c.score})</span></div></div>`).join('');
 }
 
-function renderRightPanel(acc){
-  const det=document.getElementById('rp-details');if(!det)return;
-  det.innerHTML=`
-    <div class="rp-row"><span class="rp-lbl">Industry</span><span class="rp-val">${acc.ind}</span></div>
-    <div class="rp-row"><span class="rp-lbl">CSM</span><span class="rp-val" style="font-family:var(--sans);font-size:11px;">${acc.csm}</span></div>
-    <div class="rp-row"><span class="rp-lbl">ARR</span><span class="rp-val">${fmtARR(acc.arr)}</span></div>
-    <div class="rp-row"><span class="rp-lbl">Renewal</span><span class="rp-val">${acc.dtr}d</span></div>
-    <div class="rp-row"><span class="rp-lbl">Health</span><span class="rp-val ${sc(acc.hs)}">${acc.hs}/100</span></div>`;
-  const nw=document.getElementById('notes-wrap');if(nw)nw.style.display='block';
-  const ta=document.getElementById('notes-input');if(ta){ta.value=acc.note||'';}
-  document.getElementById('notes-chars').textContent=(acc.note||'').length+' chars';
-  if(acc.noteTs){const ts=acc.noteTs;document.getElementById('notes-ts').textContent=ts.getHours().toString().padStart(2,'0')+':'+ts.getMinutes().toString().padStart(2,'0');}
+// ─── LIST ─────────────────────────────────────────────────────────────────
+function updateListItem(acc){
+  const s=document.getElementById(`ls-${acc.id}`),d=document.getElementById(`ld-${acc.id}`),li=document.querySelector(`.acc-item[data-id="${acc.id}"]`);
+  if(s){s.textContent=acc.hs;s.className=`acc-sc sc-${tc(acc.tier)}`;}
+  if(d)d.className=`rdot rdot-${tc(acc.tier)}`;
+  if(li){li.dataset.tier=acc.tier;const meta=li.querySelector('.acc-meta');if(meta)meta.textContent=`${acc.ind} · ${acc.csm.split(' ')[0]}${acc.note?' 📝':''}`;}
+}
+function buildList(){
+  document.getElementById('acc-list').innerHTML=ALL.map(a=>`
+    <div class="acc-item" data-id="${a.id}" data-name="${a.co}" data-tier="${a.tier}" onclick="selectAcc(${a.id})">
+      <div style="overflow:hidden;flex:1;min-width:0;"><div class="acc-name">${a.co}</div><div class="acc-meta">${a.ind} · ${a.csm.split(' ')[0]}</div></div>
+      <div style="flex-shrink:0;text-align:right;"><div class="acc-sc sc-${tc(a.tier)}" id="ls-${a.id}">${a.hs}</div><div style="display:flex;justify-content:center;margin-top:2px;"><div class="rdot rdot-${tc(a.tier)}" id="ld-${a.id}"></div></div></div>
+    </div>`).join('');
+}
+function filterList(){
+  const q=document.getElementById('search').value.toLowerCase();
+  document.querySelectorAll('.acc-item').forEach(el=>{const ok=(!q||el.dataset.name.toLowerCase().includes(q))&&(!activeFil||el.dataset.tier===activeFil);el.style.display=ok?'flex':'none';});
+}
+function setF(el,f){
+  activeFil=f;
+  document.querySelectorAll('.ftag').forEach(b=>{b.className='ftag';if(b.dataset.f===f){if(!f)b.classList.add('fa');else if(f==='Critical')b.classList.add('fc');else if(f==='High')b.classList.add('fh');else if(f==='Medium')b.classList.add('fm');else b.classList.add('fl');}});
+  filterList();
+}
+function updateTopStats(){
+  document.getElementById('s-crit').textContent=ALL.filter(a=>a.tier==='Critical').length;
+  document.getElementById('s-high').textContent=ALL.filter(a=>a.tier==='High').length;
+  document.getElementById('s-tot').textContent=ALL.length;
+  document.getElementById('s-avg').textContent=Math.round(ALL.reduce((s,a)=>s+a.hs,0)/ALL.length);
 }
 
-function selectAccount(id){
-  if(simMode&&selectedId!==null){const prev=ALL.find(a=>a.id===selectedId);if(prev){prev.simSignals=null;}simMode=false;}
-  selectedId=id;
+// ─── SELECT ACCOUNT ───────────────────────────────────────────────────────
+function selectAcc(id){
+  if(simMode&&selId!==null){const p=ALL.find(a=>a.id===selId);if(p)p.simSignals=null;simMode=false;}
+  selId=id;
+  document.querySelectorAll('.acc-item').forEach(el=>el.classList.toggle('sel',parseInt(el.dataset.id)===id));
   const acc=ALL.find(a=>a.id===id);
-  document.querySelectorAll('.acc-item').forEach(el=>el.classList.toggle('selected',parseInt(el.dataset.id)===id));
-  renderCenter(acc);
-  renderRightPanel(acc);
+  renderCenter(acc);renderDetails(acc);
 }
 
 buildList();updateTopStats();
