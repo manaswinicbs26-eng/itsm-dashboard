@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>ITSM Customer Escalation Risk Dashboard</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:#0f1117;color:#e8e9ec;min-height:100vh;padding:20px;}
+h1{font-size:20px;font-weight:600;color:#fff;letter-spacing:-.01em;}
+.subtitle{font-size:12px;color:#6b7280;margin-top:2px;}
+header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:20px;flex-wrap:wrap;gap:10px;}
+.live-badge{font-size:11px;background:#1a2a1a;color:#4ade80;border:1px solid #166534;padding:3px 10px;border-radius:20px;display:flex;align-items:center;gap:5px;}
+.live-badge::before{content:'';width:7px;height:7px;background:#4ade80;border-radius:50%;animation:pulse 2s infinite;}
+@keyframes pulse{0%,100%{opacity:1;}50%{opacity:.3;}}
+.filters{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px;align-items:center;}
+select{background:#1c1f2b;color:#c9cdd6;border:1px solid #2d3147;padding:6px 10px;border-radius:6px;font-size:12px;cursor:pointer;outline:none;}
+select:hover{border-color:#4f5d7a;}
+button{background:#1c1f2b;color:#c9cdd6;border:1px solid #2d3147;padding:6px 12px;border-radius:6px;font-size:12px;cursor:pointer;}
+button:hover{background:#252840;border-color:#4f5d7a;}
+.result-count{font-size:11px;color:#6b7280;}
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:10px;margin-bottom:18px;}
+.kpi{background:#161921;border:1px solid #1f2235;border-radius:10px;padding:12px 14px;}
+.kpi-lbl{font-size:10px;color:#6b7280;text-transform:uppercase;letter-spacing:.05em;margin-bottom:5px;}
+.kpi-val{font-size:24px;font-weight:600;color:#e8e9ec;}
+.kpi-val.danger{color:#f87171;}
+.kpi-val.warning{color:#fbbf24;}
+.kpi-val.info{color:#60a5fa;}
+.charts{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:18px;}
+@media(max-width:640px){.charts{grid-template-columns:1fr;}}
+.chart-card{background:#161921;border:1px solid #1f2235;border-radius:10px;padding:14px;}
+.chart-title{font-size:10px;color:#6b7280;text-transform:uppercase;letter-spacing:.05em;margin-bottom:10px;}
+.chart-wrap{position:relative;}
+.legend{display:flex;gap:12px;flex-wrap:wrap;margin-top:8px;}
+.leg-item{display:flex;align-items:center;gap:5px;font-size:11px;color:#9ca3af;}
+.leg-dot{width:10px;height:10px;border-radius:2px;flex-shrink:0;}
+.table-card{background:#161921;border:1px solid #1f2235;border-radius:10px;overflow:hidden;}
+.table-header{padding:12px 16px;border-bottom:1px solid #1f2235;font-size:10px;color:#6b7280;text-transform:uppercase;letter-spacing:.05em;}
+.table-wrap{overflow-x:auto;}
+table{width:100%;border-collapse:collapse;font-size:12px;table-layout:fixed;}
+th{font-size:10px;color:#6b7280;font-weight:500;text-align:left;padding:9px 10px;border-bottom:1px solid #1f2235;white-space:nowrap;background:#161921;position:sticky;top:0;z-index:1;}
+td{padding:8px 10px;border-bottom:1px solid #111420;color:#c9cdd6;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+tr:hover td{background:#1a1d2b;}
+.badge{display:inline-block;font-size:10px;font-weight:600;padding:2px 8px;border-radius:4px;letter-spacing:.02em;}
+.bc{background:#3b1010;color:#f87171;border:1px solid #7f1d1d;}
+.bh{background:#3b2a00;color:#fbbf24;border:1px solid #78350f;}
+.bm{background:#0d2040;color:#60a5fa;border:1px solid #1e3a5f;}
+.bl{background:#0a2310;color:#4ade80;border:1px solid #14532d;}
+.company-link{color:#818cf8;text-decoration:underline;text-underline-offset:2px;cursor:pointer;}
+.health-crit{color:#f87171;font-weight:600;}
+.health-high{color:#fbbf24;font-weight:600;}
+.health-ok{color:#c9cdd6;}
+.dau-pos{color:#4ade80;}
+.dau-neg{color:#f87171;}
+.dau-neu{color:#fbbf24;}
+colgroup col:nth-child(1){width:130px;}
+colgroup col:nth-child(2){width:90px;}
+colgroup col:nth-child(3){width:62px;}
+colgroup col:nth-child(4){width:55px;}
+colgroup col:nth-child(5){width:70px;}
+colgroup col:nth-child(6){width:62px;}
+colgroup col:nth-child(7){width:62px;}
+colgroup col:nth-child(8){width:46px;}
+colgroup col:nth-child(9){width:56px;}
+colgroup col:nth-child(10){width:72px;}
+</style>
+</head>
+<body>
+
+<header>
+  <div>
+    <h1>Customer Escalation Risk</h1>
+    <p class="subtitle">ITSM / IT Operations — 200 mock enterprise accounts</p>
+  </div>
+  <div class="live-badge">Live simulation</div>
+</header>
+
+<div class="filters">
+  <select id="f-csm"><option value="">All CSMs</option></select>
+  <select id="f-ind"><option value="">All industries</option></select>
+  <select id="f-risk">
+    <option value="">All risk tiers</option>
+    <option>Critical</option><option>High</option><option>Medium</option><option>Low</option>
+  </select>
+  <button onclick="resetFilters()">Reset filters</button>
+  <span class="result-count" id="result-count"></span>
+</div>
+
+<div class="kpis">
+  <div class="kpi"><div class="kpi-lbl">Accounts</div><div class="kpi-val" id="k-total">—</div></div>
+  <div class="kpi"><div class="kpi-lbl">Critical</div><div class="kpi-val danger" id="k-crit">—</div></div>
+  <div class="kpi"><div class="kpi-lbl">High risk</div><div class="kpi-val warning" id="k-high">—</div></div>
+  <div class="kpi"><div class="kpi-lbl">Avg health score</div><div class="kpi-val info" id="k-health">—</div></div>
+  <div class="kpi"><div class="kpi-lbl">Avg ARR</div><div class="kpi-val" id="k-arr" style="font-size:18px;">—</div></div>
+  <div class="kpi"><div class="kpi-lbl">Total ARR at risk</div><div class="kpi-val danger" id="k-arr-risk" style="font-size:18px;">—</div></div>
+</div>
+
+<div class="charts">
+  <div class="chart-card">
+    <div class="chart-title">Risk distribution</div>
+    <div class="chart-wrap" style="height:180px;"><canvas id="c-risk" role="img" aria-label="Bar chart showing account count per risk tier">Risk tier bar chart</canvas></div>
+    <div class="legend">
+      <span class="leg-item"><span class="leg-dot" style="background:#f87171;"></span>Critical</span>
+      <span class="leg-item"><span class="leg-dot" style="background:#fbbf24;"></span>High</span>
+      <span class="leg-item"><span class="leg-dot" style="background:#60a5fa;"></span>Medium</span>
+      <span class="leg-item"><span class="leg-dot" style="background:#4ade80;"></span>Low</span>
+    </div>
+  </div>
+  <div class="chart-card">
+    <div class="chart-title">Feature adoption vs DAU trend</div>
+    <div class="chart-wrap" style="height:180px;"><canvas id="c-scatter" role="img" aria-label="Scatter plot of feature adoption vs DAU trend by risk tier">Adoption scatter</canvas></div>
+    <div class="legend">
+      <span class="leg-item"><span class="leg-dot" style="background:#f87171;"></span>Critical</span>
+      <span class="leg-item"><span class="leg-dot" style="background:#fbbf24;"></span>High</span>
+      <span class="leg-item"><span class="leg-dot" style="background:#60a5fa;"></span>Medium</span>
+      <span class="leg-item"><span class="leg-dot" style="background:#4ade80;"></span>Low</span>
+    </div>
+  </div>
+  <div class="chart-card">
+    <div class="chart-title">Health score by industry</div>
+    <div class="chart-wrap" style="height:180px;"><canvas id="c-ind" role="img" aria-label="Bar chart of average health score by industry">Industry health bar</canvas></div>
+  </div>
+  <div class="chart-card">
+    <div class="chart-title">Renewal urgency — health vs days to renewal</div>
+    <div class="chart-wrap" style="height:180px;"><canvas id="c-renewal" role="img" aria-label="Bubble chart of health score vs days to renewal, bubble size = ARR">Renewal risk bubble chart</canvas></div>
+    <div class="legend">
+      <span class="leg-item" style="font-size:10px;color:#6b7280;">Bubble size = ARR &nbsp;|&nbsp; Bottom-left = highest urgency</span>
+    </div>
+  </div>
+</div>
+
+<div class="table-card">
+  <div class="table-header">Top at-risk accounts (sorted by health score ascending)</div>
+  <div class="table-wrap">
+    <table>
+      <colgroup><col><col><col><col><col><col><col><col><col><col></colgroup>
+      <thead><tr>
+        <th>Company</th><th>Industry</th><th>ARR</th><th>Health</th>
+        <th>Risk tier</th><th>Open tickets</th><th>DAU trend</th>
+        <th>NPS</th><th>Renewal</th><th>CSM</th>
+      </tr></thead>
+      <tbody id="tbl"></tbody>
+    </table>
+  </div>
+</div>
+
+<script>
+const CO=["Nexus Corp","Vantage Systems","Meridian Tech","Apex Solutions","Pinnacle Data","Orion Software","Stratum IT","Vertex Cloud","Zenith Analytics","Cobalt Systems","Ember Networks","Granite Logic","Harbor Digital","Ironwood Tech","Jasper IT","Keystone Apps","Lattice Ops","Maverick Cloud","Nova Systems","Orbit Platform","Paragon Tech","Quantum Data","Ridgeline IT","Summit Cloud","Torque Systems","Ultra Logic","Vector Works","Waypoint Tech","Xenon Data","Yellowstone IT","Zephyr Cloud","Accel Systems","Beacon Analytics","Cascade Tech","Delta Ops","Eclipse Data","Falcon IT","Galaxy Cloud","Haven Systems","Impact Tech","Junction IT","Kinetic Data","Luminary Cloud","Matrix Ops","Nectar Systems","Oasis Tech","Pulse Analytics","Quest Data","Radius Cloud","Solaris IT","Titan Systems","Unipath Tech","Vortex Data","Westfield IT","Axis Cloud","Blueprint Tech","Citadel Data","Dominion IT","Epoch Systems","Frontier Cloud","Glacier Tech","Horizon Data","Irongate IT","Junction Cloud","Keystroke Tech","Landmark Data","Momentum IT","Nucleus Cloud","Overture Tech","Pathfinder Data","Quantum IT","Riverstone Cloud","Scaffold Tech","Terrain Data","Uplift IT","Venture Cloud","Watershed Tech","Xeno Data","Yield IT","Zenwave Cloud","Arclight Tech","Bastion Data","Centrix IT","Daylight Cloud","Evercore Tech","Flashpoint Data","Groundwork IT","Hillside Cloud","Ingress Tech","Jetstream Data","Keyframe IT","Lowland Cloud","Motive Tech","Northstar Data","Outpost IT","Perimeter Cloud","Quartile Tech","Rockport Data","Skyline IT","Terraform Cloud"];
+const IND=["Healthcare","Finance","Manufacturing","Retail","Logistics","Technology","Government","Insurance","Telecom","Education"];
+const CSMS=["Sarah Chen","Marcus Williams","Priya Patel","Jake Anderson","Leila Hassan"];
+const TIERS=["Critical","High","Medium","Low"];
+const TC=["#f87171","#fbbf24","#60a5fa","#4ade80"];
+const rng=(a,b)=>Math.random()*(b-a)+a;
+const ri=(a,b)=>Math.floor(rng(a,b+1));
+const pk=a=>a[Math.floor(Math.random()*a.length)];
+function gen(){
+  const d=[];
+  for(let i=0;i<200;i++){
+    const br=Math.random();
+    const ot=br>.7?ri(8,25):br>.4?ri(2,10):ri(0,4);
+    const ct=Math.min(ot,br>.7?ri(2,5):ri(0,2));
+    const dt=br>.7?rng(-60,-5):br>.4?rng(-15,15):rng(-5,40);
+    const fa=br>.7?ri(10,45):br>.4?ri(30,70):ri(55,100);
+    const dsl=br>.7?ri(20,90):br>.4?ri(5,25):ri(0,10);
+    const nps=br>.7?ri(-100,10):br>.4?ri(-20,40):ri(20,80);
+    const csat=br>.7?rng(1,3):br>.4?rng(2.5,4):rng(3.5,5);
+    const dtr=ri(10,365);
+    const arr=Math.round(rng(50,2000))*1000;
+    const ts=Math.max(0,100-ot*4-ct*8);
+    const us=Math.max(0,Math.min(100,fa*.4+(Math.max(0,90-dsl)/90)*40+(Math.min(40,Math.max(-40,dt))+40)/80*20));
+    const ss=Math.max(0,Math.min(100,((nps+100)/200)*60+((csat-1)/4)*40));
+    const hs=Math.round(ts*.35+us*.40+ss*.25);
+    const rt=hs<30?"Critical":hs<50?"High":hs<70?"Medium":"Low";
+    d.push({id:i,co:CO[i%CO.length],ind:pk(IND),csm:CSMS[i%CSMS.length],arr,ot,ct,dt:Math.round(dt),fa,dsl,nps,csat:Math.round(csat*10)/10,dtr,hs,rt});
+  }
+  return d;
+}
+const ALL=gen();
+let cR=null,cS=null,cI=null,cBub=null;
+function filtered(){
+  const cv=document.getElementById("f-csm").value;
+  const iv=document.getElementById("f-ind").value;
+  const rv=document.getElementById("f-risk").value;
+  return ALL.filter(d=>(!cv||d.csm===cv)&&(!iv||d.ind===iv)&&(!rv||d.rt===rv));
+}
+function fmtARR(v){return v>=1e6?"$"+(v/1e6).toFixed(1)+"M":"$"+Math.round(v/1000)+"K";}
+const GRID_COLOR="rgba(255,255,255,0.07)";
+const TICK_COLOR="#6b7280";
+function render(){
+  const data=filtered();
+  const rc=document.getElementById("result-count");
+  rc.textContent=data.length<200?data.length+" accounts shown":"";
+  const crit=data.filter(d=>d.rt==="Critical");
+  const high=data.filter(d=>d.rt==="High");
+  const avgH=data.length?Math.round(data.reduce((s,d)=>s+d.hs,0)/data.length):0;
+  const avgARR=data.length?Math.round(data.reduce((s,d)=>s+d.arr,0)/data.length):0;
+  const atRiskARR=[...crit,...high].reduce((s,d)=>s+d.arr,0);
+  document.getElementById("k-total").textContent=data.length;
+  document.getElementById("k-crit").textContent=crit.length;
+  document.getElementById("k-high").textContent=high.length;
+  document.getElementById("k-health").textContent=avgH;
+  document.getElementById("k-arr").textContent=fmtARR(avgARR);
+  document.getElementById("k-arr-risk").textContent=fmtARR(atRiskARR);
+
+  const counts=TIERS.map(t=>data.filter(d=>d.rt===t).length);
+  if(cR)cR.destroy();
+  cR=new Chart(document.getElementById("c-risk"),{
+    type:"bar",
+    data:{labels:TIERS,datasets:[{data:counts,backgroundColor:TC,borderWidth:0,borderRadius:5}]},
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>" "+c.raw+" accounts"}}},
+      scales:{x:{grid:{display:false},ticks:{color:TICK_COLOR,font:{size:10}}},y:{grid:{color:GRID_COLOR},ticks:{color:TICK_COLOR,font:{size:10},stepSize:10}}}}
+  });
+
+  if(cS)cS.destroy();
+  const sds=TIERS.map((t,ti)=>({
+    label:t,data:data.filter(d=>d.rt===t).map(d=>({x:d.fa,y:d.dt,co:d.co})),
+    backgroundColor:TC[ti]+"99",pointRadius:4,
+    pointStyle:["circle","triangle","rect","rectRot"][ti]
+  }));
+  cS=new Chart(document.getElementById("c-scatter"),{
+    type:"scatter",data:{datasets:sds},
+    options:{responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>c.raw.co}}},
+      scales:{
+        x:{min:-5,max:115,grid:{color:GRID_COLOR},title:{display:true,text:"Feature adoption %",color:TICK_COLOR,font:{size:9}},ticks:{color:TICK_COLOR,font:{size:9}}},
+        y:{min:-80,max:60,grid:{color:GRID_COLOR},title:{display:true,text:"DAU trend %",color:TICK_COLOR,font:{size:9}},ticks:{color:TICK_COLOR,font:{size:9}}}
+      }}
+  });
+
+  const indNames=IND;
+  const indScores=indNames.map(ind=>{
+    const acc=data.filter(d=>d.ind===ind);
+    return acc.length?Math.round(acc.reduce((s,d)=>s+d.hs,0)/acc.length):0;
+  });
+  const indColors=indScores.map(s=>s<30?"#f87171":s<50?"#fbbf24":s<70?"#60a5fa":"#4ade80");
+  if(cI)cI.destroy();
+  cI=new Chart(document.getElementById("c-ind"),{
+    type:"bar",
+    data:{labels:indNames.map(n=>n.length>8?n.slice(0,8)+"…":n),datasets:[{data:indScores,backgroundColor:indColors,borderWidth:0,borderRadius:4}]},
+    options:{responsive:true,maintainAspectRatio:false,indexAxis:"y",
+      plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>" Avg health: "+c.raw}}},
+      scales:{x:{min:0,max:100,grid:{color:GRID_COLOR},ticks:{color:TICK_COLOR,font:{size:9}}},y:{grid:{display:false},ticks:{color:TICK_COLOR,font:{size:9}}}}}
+  });
+
+  if(cBub)cBub.destroy();
+  const bubDs=TIERS.map((t,ti)=>({
+    label:t,
+    data:data.filter(d=>d.rt===t).map(d=>({x:d.dtr,y:d.hs,r:Math.max(3,Math.min(18,Math.round(d.arr/100000)))})),
+    backgroundColor:TC[ti]+"88"
+  }));
+  cBub=new Chart(document.getElementById("c-renewal"),{
+    type:"bubble",data:{datasets:bubDs},
+    options:{responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>"Renewal "+c.raw.x+"d | Health "+c.raw.y}}},
+      scales:{
+        x:{min:0,max:380,grid:{color:GRID_COLOR},title:{display:true,text:"Days to renewal",color:TICK_COLOR,font:{size:9}},ticks:{color:TICK_COLOR,font:{size:9}}},
+        y:{min:-5,max:110,grid:{color:GRID_COLOR},title:{display:true,text:"Health score",color:TICK_COLOR,font:{size:9}},ticks:{color:TICK_COLOR,font:{size:9}}}
+      }}
+  });
+
+  const sorted=[...data].sort((a,b)=>a.hs-b.hs).slice(0,25);
+  const bmap={Critical:"bc",High:"bh",Medium:"bm",Low:"bl"};
+  document.getElementById("tbl").innerHTML=sorted.map(d=>{
+    const hcls=d.hs<30?"health-crit":d.hs<50?"health-high":"health-ok";
+    const dcls=d.dt>0?"dau-pos":d.dt<-20?"dau-neg":"dau-neu";
+    return `<tr>
+      <td class="company-link" title="${d.co}">${d.co}</td>
+      <td>${d.ind}</td><td>${fmtARR(d.arr)}</td>
+      <td class="${hcls}">${d.hs}/100</td>
+      <td><span class="badge ${bmap[d.rt]}">${d.rt}</span></td>
+      <td>${d.ot} (${d.ct} crit)</td>
+      <td class="${dcls}">${d.dt>0?"+":""}${d.dt}%</td>
+      <td>${d.nps}</td><td>${d.dtr}d</td>
+      <td>${d.csm}</td>
+    </tr>`;
+  }).join("");
+}
+function populateFilters(){
+  const cs=[...new Set(ALL.map(d=>d.csm))].sort();
+  const is=[...new Set(ALL.map(d=>d.ind))].sort();
+  const csel=document.getElementById("f-csm");
+  cs.forEach(c=>{const o=document.createElement("option");o.value=c;o.textContent=c;csel.appendChild(o);});
+  const isel=document.getElementById("f-ind");
+  is.forEach(i=>{const o=document.createElement("option");o.value=i;o.textContent=i;isel.appendChild(o);});
+}
+function resetFilters(){
+  ["f-csm","f-ind","f-risk"].forEach(id=>document.getElementById(id).value="");render();
+}
+["f-csm","f-ind","f-risk"].forEach(id=>document.getElementById(id).addEventListener("change",render));
+populateFilters();
+render();
+</script>
+</body>
+</html>
