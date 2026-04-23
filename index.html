@@ -108,24 +108,45 @@ body{font-family:var(--sans);background:var(--bg);color:var(--text);display:flex
 .sig-card.ah{border-color:rgba(217,119,6,.3);background:rgba(217,119,6,.025);}
 .sig-card.al{border-color:rgba(5,150,105,.3);background:rgba(5,150,105,.025);}
 .sig-card.sim-c{border-color:var(--simborder);background:var(--simbg);}
-.sig-hdr{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:10px;}
-.sig-icon{font-size:16px;margin-right:6px;}
-.sig-lbl{font-size:10px;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);}
-.sig-name{font-size:13px;font-weight:600;color:var(--text);margin-top:1px;}
+.sig-hdr{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:8px;}
+.sig-icon{font-size:15px;margin-right:5px;}
+.sig-lbl{font-size:9px;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);}
+.sig-name{font-size:12px;font-weight:600;color:var(--text);margin-top:1px;}
 .sig-wt{font-size:9px;font-weight:600;padding:2px 7px;border-radius:4px;background:var(--surface2);border:1px solid var(--border2);color:var(--muted2);flex-shrink:0;margin-top:1px;}
-.slider-wrap{margin-bottom:6px;}
+.sig-metric{display:flex;align-items:baseline;gap:5px;margin-bottom:8px;}
+.sig-big-val{font-family:var(--mono);font-size:26px;font-weight:500;line-height:1;transition:color .3s;}
+.sig-unit{font-size:11px;color:var(--muted);font-weight:400;}
+.sig-fill-track{height:6px;background:var(--surface3);border-radius:3px;overflow:hidden;margin-bottom:6px;}
+.sig-fill-bar{height:6px;border-radius:3px;transition:width .4s,background .3s;}
+.sig-foot{display:flex;align-items:center;justify-content:space-between;}
+.sig-status{font-size:10px;font-weight:600;padding:2px 7px;border-radius:3px;transition:all .3s;}
+.sig-src{font-size:9px;color:var(--muted);font-style:italic;}
+.override-btn{font-size:9px;font-weight:600;padding:2px 8px;border-radius:4px;cursor:pointer;font-family:var(--sans);border:1px solid rgba(109,40,217,.25);color:var(--ai);background:var(--aibg);transition:all .15s;white-space:nowrap;}
+.override-btn:hover{background:rgba(109,40,217,.12);}
+.override-btn.active{border-color:rgba(5,150,105,.35);color:var(--low);background:rgba(5,150,105,.08);}
+.override-btn.active:hover{background:rgba(5,150,105,.14);}
+.override-expand{overflow:hidden;max-height:0;transition:max-height .3s ease,opacity .3s;opacity:0;margin-top:0;}
+.override-expand.open{max-height:80px;opacity:1;margin-top:10px;padding-top:10px;border-top:1px solid var(--border);}
 .slider-row{display:flex;align-items:center;gap:8px;}
 .sig-slider{-webkit-appearance:none;appearance:none;flex:1;height:5px;border-radius:3px;outline:none;cursor:pointer;border:none;transition:background .25s;}
-.sig-slider::-webkit-slider-thumb{-webkit-appearance:none;width:16px;height:16px;border-radius:50%;background:#fff;border:2px solid var(--ai);cursor:pointer;box-shadow:0 1px 4px rgba(0,0,0,.18);transition:border-color .2s,transform .1s;}
+.sig-slider::-webkit-slider-thumb{-webkit-appearance:none;width:16px;height:16px;border-radius:50%;background:#fff;border:2px solid var(--ai);cursor:pointer;box-shadow:0 1px 4px rgba(0,0,0,.15);transition:transform .1s;}
 .sig-slider::-webkit-slider-thumb:hover{transform:scale(1.15);}
-.sig-slider::-moz-range-thumb{width:16px;height:16px;border-radius:50%;background:#fff;border:2px solid var(--ai);cursor:pointer;box-shadow:0 1px 4px rgba(0,0,0,.18);}
-.sim-col-cur .sig-slider{pointer-events:none;opacity:.7;}
-.slider-val{font-family:var(--mono);font-size:13px;font-weight:600;min-width:44px;text-align:right;flex-shrink:0;transition:color .25s;}
+.sig-slider::-moz-range-thumb{width:16px;height:16px;border-radius:50%;background:#fff;border:2px solid var(--ai);cursor:pointer;}
+.slider-val{font-family:var(--mono);font-size:12px;font-weight:600;min-width:44px;text-align:right;flex-shrink:0;transition:color .25s;}
 .slider-mm{display:flex;justify-content:space-between;font-size:9px;color:var(--muted);margin-top:2px;padding:0 1px;}
-.sig-score-row{display:flex;align-items:center;justify-content:space-between;margin-top:8px;}
-.sig-score-lbl{font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:.04em;}
-.sig-score-val{font-family:var(--mono);font-size:11px;font-weight:600;padding:1px 6px;border-radius:3px;background:var(--surface2);}
-.sig-hint{font-size:10px;color:var(--muted2);margin-top:5px;line-height:1.5;}
+.sim-col-cur .sig-slider{pointer-events:none;opacity:.7;}
+.sig-override-note{font-size:9px;color:var(--low);margin-top:5px;display:none;}
+.sig-override-note.show{display:block;}
+.info-btn{width:16px;height:16px;border-radius:50%;border:1px solid var(--border2);background:var(--surface2);color:var(--muted);font-size:9px;font-weight:700;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;flex-shrink:0;font-family:var(--mono);line-height:1;transition:all .15s;position:relative;}
+.info-btn:hover{background:var(--ai);border-color:var(--ai);color:#fff;}
+.info-popover{position:absolute;bottom:calc(100% + 8px);right:0;width:220px;background:var(--surface);border:1px solid var(--border2);border-radius:8px;padding:12px;box-shadow:0 4px 20px rgba(0,0,0,.12);z-index:50;display:none;text-align:left;}
+.info-popover.open{display:block;}
+.info-popover::after{content:'';position:absolute;bottom:-5px;right:6px;width:8px;height:8px;background:var(--surface);border-right:1px solid var(--border2);border-bottom:1px solid var(--border2);transform:rotate(45deg);}
+.info-pop-title{font-size:11px;font-weight:600;color:var(--text);margin-bottom:6px;}
+.info-pop-row{display:flex;align-items:baseline;gap:6px;margin-bottom:4px;font-size:10px;}
+.info-pop-range{font-family:var(--mono);font-size:9px;font-weight:600;padding:1px 5px;border-radius:3px;flex-shrink:0;min-width:48px;text-align:center;}
+.info-pop-desc{color:var(--muted2);line-height:1.4;}
+.info-pop-note{font-size:9px;color:var(--muted);margin-top:7px;padding-top:7px;border-top:1px solid var(--border);line-height:1.5;}
 
 /* SCORE PANEL */
 .score-panel{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:16px;margin-bottom:14px;display:flex;align-items:center;gap:18px;box-shadow:var(--shadow);}
@@ -405,6 +426,32 @@ function fARR(v){return v>=1e6?'$'+(v/1e6).toFixed(1)+'M':'$'+Math.round(v/1e3)+
 function sigColor(s){return s>=70?'#059669':s>=40?'#d97706':'#dc2626';}
 function cardAC(sig){const{t,a,n,c}=sigScores(sig);const avg=Math.round(t*.30+a*.35+n*.20+c*.15);return avg>=70?'al':avg>=40?'ah':'ac';}
 const TC={Critical:'#dc2626',High:'#d97706',Medium:'#2563eb',Low:'#059669'};
+const INFO={
+  tickets:{title:'Support ticket thresholds',rows:[
+    {range:'0–2',style:'background:var(--lowbg);color:var(--low);',desc:'Healthy — platform stable, team self-sufficient'},
+    {range:'3–6',style:'background:var(--highbg);color:var(--high);',desc:'Monitor — normal load, watch trend direction'},
+    {range:'7–12',style:'background:var(--critbg);color:#e87b2a;',desc:'At risk — recurring issues or onboarding friction'},
+    {range:'13+',style:'background:var(--critbg);color:var(--crit);',desc:'Critical — support dependency, escalation likely'},
+  ],note:'Weight: 30% of health score. Non-linear: each ticket above 12 penalises more heavily.'},
+  adoption:{title:'Feature adoption benchmarks',rows:[
+    {range:'80–100%',style:'background:var(--lowbg);color:var(--low);',desc:'Strong — team fully activated across features'},
+    {range:'55–79%',style:'background:var(--highbg);color:var(--high);',desc:'Moderate — unused features remain, coach up'},
+    {range:'30–54%',style:'background:var(--critbg);color:#e87b2a;',desc:'Low — onboarding gaps likely, intervention needed'},
+    {range:'0–29%',style:'background:var(--critbg);color:var(--crit);',desc:'Critical — at risk of abandonment'},
+  ],note:'Weight: 35% of health score. CSM override available when system data lags reality (e.g. new team onboarding).'},
+  nps:{title:'Net Promoter Score guide',rows:[
+    {range:'+50 to +100',style:'background:var(--lowbg);color:var(--low);',desc:'Excellent — strong promoters, expansion ready'},
+    {range:'+20 to +49',style:'background:var(--lowbg);color:var(--low);',desc:'Good — satisfied, stable relationship'},
+    {range:'0 to +19',style:'background:var(--highbg);color:var(--high);',desc:'Neutral — loyalty is fragile, nurture needed'},
+    {range:'-100 to -1',style:'background:var(--critbg);color:var(--crit);',desc:'Detractor — active dissatisfaction, churn risk'},
+  ],note:'Weight: 20% of health score. Source: quarterly NPS survey. Scores are typically collected every 90 days.'},
+  csat:{title:'CSAT rating benchmarks',rows:[
+    {range:'4.5–5.0',style:'background:var(--lowbg);color:var(--low);',desc:'Excellent — customers delighted with support'},
+    {range:'3.5–4.4',style:'background:var(--lowbg);color:var(--low);',desc:'Good — minor friction, mostly satisfied'},
+    {range:'2.5–3.4',style:'background:var(--highbg);color:var(--high);',desc:'Mixed — inconsistent quality, investigate'},
+    {range:'1.0–2.4',style:'background:var(--critbg);color:var(--crit);',desc:'Poor — customers frustrated with support'},
+  ],note:'Weight: 15% of health score. CSM override available when a score reflects a one-off incident rather than trend.'},
+};
 
 function ticketHint(v){return v<=2?'Minimal load — platform stable':v<=7?'Moderate — monitor ticket trends':v<=15?'Elevated — investigate root causes':'Critical — major platform issues likely';}
 function adoptionHint(v){return v>=80?'Strong adoption across the team':v>=55?'Moderate — unused features remain':v>=30?'Low — onboarding gaps likely':'Very low — at risk of abandonment';}
@@ -565,23 +612,46 @@ function sigCard(key,sig,isSim,accId){
   const fn=isSim?`onSimSlider(${accId},'${key}',this)`:`onSlider(${accId},'${key}',this)`;
   const color=sigColor(cfg.score);
   const ac=isSim?'sim-c':cardAC(sig);
+  const isReadonly=!isSim&&(key==='tickets'||key==='nps');
+  const isOverridable=!isSim&&(key==='adoption'||key==='csat');
+  const overrideActive=isOverridable&&!!sig[key+'_override'];
+  const pct=Math.round(((cfg.val-cfg.min)/(cfg.max-cfg.min))*100);
+  const statusLabel=cfg.score>=70?'Healthy':cfg.score>=45?'Monitor':'At risk';
+  const statusStyle=cfg.score>=70?'background:var(--lowbg);color:var(--low);border:1px solid rgba(5,150,105,.25);':cfg.score>=45?'background:var(--highbg);color:var(--high);border:1px solid rgba(217,119,6,.25);':'background:var(--critbg);color:var(--crit);border:1px solid rgba(220,38,38,.25);';
+  const srcLabel={tickets:'Ticketing system',nps:'NPS survey platform',adoption:'Product analytics',csat:'Support platform'}[key];
   return`<div class="sig-card ${ac}" id="${pre}-card-${key}">
     <div class="sig-hdr">
       <div><div class="sig-lbl">${cfg.icon} ${cfg.lbl}</div><div class="sig-name">${cfg.name}</div></div>
-      <span class="sig-wt">${cfg.wt}</span>
+      <div style="display:flex;align-items:center;gap:5px;">
+        <span class="sig-wt">${cfg.wt}</span>
+        <div style="position:relative;">
+          <button class="info-btn" onclick="toggleInfo(event,'${pre}-info-${key}')" title="Signal details">i</button>
+          <div class="info-popover" id="${pre}-info-${key}">
+            <div class="info-pop-title">${(INFO[key]||{}).title||''}</div>
+            ${((INFO[key]||{}).rows||[]).map(r=>'<div class="info-pop-row"><span class="info-pop-range" style="'+r.style+'">'+r.range+'</span><span class="info-pop-desc">'+r.desc+'</span></div>').join('')}
+            <div class="info-pop-note">${(INFO[key]||{}).note||''}</div>
+          </div>
+        </div>
+      </div>
     </div>
-    <div class="slider-wrap">
+    <div class="sig-metric">
+      <span class="sig-big-val" id="${pre}-sv-${key}" style="color:${color}">${cfg.disp.replace('%','').replace(' open','').replace(' / 5','')}</span>
+      <span class="sig-unit">${key==='adoption'?'%':key==='tickets'?' open':key==='csat'?' / 5':''}</span>
+    </div>
+    <div class="sig-fill-track"><div class="sig-fill-bar" id="${pre}-fb-${key}" style="width:${pct}%;background:${color};"></div></div>
+    <div class="sig-foot">
+      <span class="sig-status" id="${pre}-st-${key}" style="${statusStyle}">${statusLabel}</span>
+      <span class="sig-src" id="${pre}-src-${key}" style="${overrideActive?'text-decoration:line-through;opacity:.45;':''}">↳ ${srcLabel}</span>
+      ${isOverridable?`<button class="override-btn${overrideActive?' active':''}" onclick="toggleOverride(${accId},'${key}')" id="${pre}-ob-${key}">${overrideActive?'Undo':'Edit'}</button>`:''}
+    </div>
+    ${isOverridable?`<div class="override-expand${overrideActive?' open':''}" id="${pre}-oe-${key}">
       <div class="slider-row">
         <input type="range" class="sig-slider" id="${pre}-sl-${key}" min="${cfg.min}" max="${cfg.max}" step="${cfg.step}" value="${cfg.val}" style="${trackStyle(cfg.val,cfg.min,cfg.max,cfg.score)}" oninput="${fn}"/>
-        <span class="slider-val" id="${pre}-sv-${key}" style="color:${color}">${cfg.disp}</span>
+        <span class="slider-val" style="color:${color}" id="${pre}-slv-${key}">${cfg.disp}</span>
       </div>
       <div class="slider-mm"><span>${cfg.minL}</span><span>${cfg.maxL}</span></div>
-    </div>
-    <div class="sig-score-row">
-      <span class="sig-score-lbl">Signal score</span>
-      <span class="sig-score-val" id="${pre}-ss-${key}" style="color:${color}">${cfg.score}/100</span>
-    </div>
-    <div class="sig-hint" id="${pre}-hint-${key}">${cfg.hint}</div>
+    </div>`:''}
+    <div class="sig-override-note${overrideActive?' show':''}" id="${pre}-on-${key}">CSM override active — value differs from system data</div>
   </div>`;
 }
 
@@ -590,7 +660,69 @@ function sBar(label,val,key,pfx='sb'){
   return`<div class="sb"><div class="sb-l">${label}</div><div class="sb-v" style="color:${col}" id="${pfx}-${key}">${val}</div><div class="sb-t"><div class="sb-b" style="width:${val}%;background:${col};" id="${pfx}-b-${key}"></div></div></div>`;
 }
 
+// ── INFO POPOVER ─────────────────────────────────────────────────────────────
+function toggleInfo(e,id){
+  e.stopPropagation();
+  const el=document.getElementById(id);if(!el)return;
+  const isOpen=el.classList.contains('open');
+  document.querySelectorAll('.info-popover.open').forEach(p=>p.classList.remove('open'));
+  if(!isOpen)el.classList.add('open');
+}
+document.addEventListener('click',()=>document.querySelectorAll('.info-popover.open').forEach(p=>p.classList.remove('open')));
+
+// ── OVERRIDE ──────────────────────────────────────────────────────────────────
+function toggleOverride(id,key){
+  const acc=ALL.find(a=>a.id===id);
+  acc.signals[key+'_override']=!acc.signals[key+'_override'];
+  const active=acc.signals[key+'_override'];
+  const oe=document.getElementById(`c-oe-${key}`);
+  const ob=document.getElementById(`c-ob-${key}`);
+  const src=document.getElementById(`c-src-${key}`);
+  const note=document.getElementById(`c-on-${key}`);
+  if(oe)oe.classList.toggle('open',active);
+  if(ob){ob.textContent=active?'Undo':'Edit';ob.className='override-btn'+(active?' active':'');}
+  if(src){src.style.textDecoration=active?'line-through':'none';src.style.opacity=active?'0.45':'1';}
+  if(note)note.classList.toggle('show',active);
+  if(!active){
+    const orig=iSig(id);acc.signals[key]=orig[key];
+    const{hs,t,a,n,c}=calcH(acc.signals);
+    acc.hs=hs;acc.tier=getTier(hs);
+    const scores={tickets:t,adoption:a,nps:n,csat:c};
+    updateSigDisplay(key,acc.signals[key],scores[key],false);
+    const sl=document.getElementById(`c-sl-${key}`);if(sl)sl.value=acc.signals[key];
+    const card=document.getElementById(`c-card-${key}`);
+    if(card){['ac','ah','al'].forEach(x=>card.classList.remove(x));card.classList.add(cardAC(acc.signals));}
+    const gn=document.getElementById('g-num');if(gn){gn.textContent=hs;gn.className=`g-num ${sc(hs)}`;}
+    drawG('main-g',hs,TC[acc.tier]);
+    const rb=document.getElementById('r-badge'),rl=document.getElementById('r-lbl');
+    if(rb&&rl){rb.className=`risk-badge r${tc(acc.tier)}`;rb.querySelector('.rdot').className=`rdot rdot-${tc(acc.tier)}`;rl.textContent=acc.tier+' Risk';}
+    [{k:'tickets',v:t},{k:'adoption',v:a},{k:'nps',v:n},{k:'csat',v:c}].forEach(({k,v})=>{
+      const el=document.getElementById(`sb-${k}`),bar=document.getElementById(`sb-b-${k}`);const col=sigColor(v);
+      if(el){el.textContent=v;el.style.color=col;}if(bar){bar.style.width=v+'%';bar.style.background=col;}
+    });
+    updateListItem(acc);updateTopStats();
+    if(apiKey){const badge=document.getElementById('stale-badge');if(badge)badge.classList.add('show');clearTimeout(analysisDebounce);analysisDebounce=setTimeout(()=>{const b=document.getElementById('stale-badge');if(b)b.classList.remove('show');generateAnalysis(acc);},1500);}
+  }
+  logChange(acc.co,key+'_override',null,acc.hs);renderChangeLog();
+}
+
 // ── SLIDER HANDLERS ───────────────────────────────────────────────────────────
+function updateSigDisplay(key,v,score,isSim){
+  const pre=isSim?'s':'c';
+  const color=sigColor(score);
+  const bigDisp={tickets:v,adoption:v,nps:v>=0?'+'+v:v,csat:v.toFixed?v.toFixed(1):v}[key];
+  const slDisp={tickets:v+' open',adoption:v+'%',nps:(v>=0?'+':'')+v,csat:v.toFixed(1)+' / 5'}[key];
+  const statusLabel=score>=70?'Healthy':score>=45?'Monitor':'At risk';
+  const statusStyle=score>=70?'background:var(--lowbg);color:var(--low);border:1px solid rgba(5,150,105,.25);':score>=45?'background:var(--highbg);color:var(--high);border:1px solid rgba(217,119,6,.25);':'background:var(--critbg);color:var(--crit);border:1px solid rgba(220,38,38,.25);';
+  const cfgMin={tickets:0,adoption:0,nps:-100,csat:1}[key];
+  const cfgMax={tickets:28,adoption:100,nps:100,csat:5}[key];
+  const pct=Math.round(((v-cfgMin)/(cfgMax-cfgMin))*100);
+  const bv=document.getElementById(`${pre}-sv-${key}`);if(bv){bv.textContent=bigDisp;bv.style.color=color;}
+  const fb=document.getElementById(`${pre}-fb-${key}`);if(fb){fb.style.width=pct+'%';fb.style.background=color;}
+  const st=document.getElementById(`${pre}-st-${key}`);if(st){st.textContent=statusLabel;st.style.cssText=statusStyle;}
+  const slv=document.getElementById(`${pre}-slv-${key}`);if(slv){slv.textContent=slDisp;slv.style.color=color;}
+  const sl=document.getElementById(`${pre}-sl-${key}`);if(sl)sl.style.cssText=trackStyle(v,cfgMin,cfgMax,score);
+}
 function onSlider(id,key,input){
   const acc=ALL.find(a=>a.id===id);
   const v=key==='csat'?Math.round(parseFloat(input.value)*10)/10:parseInt(input.value);
@@ -598,15 +730,7 @@ function onSlider(id,key,input){
   const{hs,t,a,n,c}=calcH(acc.signals);
   acc.hs=hs;acc.tier=getTier(hs);
   const scores={tickets:t,adoption:a,nps:n,csat:c};
-  const score=scores[key];
-  const color=sigColor(score);
-  input.style.cssText=trackStyle(v,parseFloat(input.min),parseFloat(input.max),score);
-  const disps={tickets:v+' open',adoption:v+'%',nps:(v>=0?'+':'')+v,csat:v.toFixed(1)+' / 5'};
-  const hints={tickets:ticketHint(v),adoption:adoptionHint(v),nps:npsHint(v),csat:csatHint(v)};
-  const sv=document.getElementById(`c-sv-${key}`),ss=document.getElementById(`c-ss-${key}`),hint=document.getElementById(`c-hint-${key}`);
-  if(sv){sv.textContent=disps[key];sv.style.color=color;}
-  if(ss){ss.textContent=score+'/100';ss.style.color=color;}
-  if(hint)hint.textContent=hints[key];
+  updateSigDisplay(key,v,scores[key],false);
   const card=document.getElementById(`c-card-${key}`);
   if(card){['ac','ah','al'].forEach(x=>card.classList.remove(x));card.classList.add(cardAC(acc.signals));}
   const gn=document.getElementById('g-num');if(gn){gn.textContent=hs;gn.className=`g-num ${sc(hs)}`;}
@@ -623,7 +747,7 @@ function onSlider(id,key,input){
     const badge=document.getElementById('stale-badge');if(badge)badge.classList.add('show');
     clearTimeout(analysisDebounce);
     analysisDebounce=setTimeout(()=>{
-      const badge=document.getElementById('stale-badge');if(badge)badge.classList.remove('show');
+      const b=document.getElementById('stale-badge');if(b)b.classList.remove('show');
       generateAnalysis(acc);
     },1500);
   }
@@ -635,13 +759,8 @@ function onSimSlider(id,key,input){
   acc.simSignals[key]=v;
   const{hs:shs,t,a,n,c}=calcH(acc.simSignals);
   const{hs:chs}=calcH(acc.signals);
-  const score={tickets:t,adoption:a,nps:n,csat:c}[key];
-  const color=sigColor(score);
-  input.style.cssText=trackStyle(v,parseFloat(input.min),parseFloat(input.max),score);
-  const disps={tickets:v+' open',adoption:v+'%',nps:(v>=0?'+':'')+v,csat:v.toFixed(1)+' / 5'};
-  const hints={tickets:ticketHint(v),adoption:adoptionHint(v),nps:npsHint(v),csat:csatHint(v)};
-  const sv=document.getElementById(`s-sv-${key}`),ss=document.getElementById(`s-ss-${key}`),hint=document.getElementById(`s-hint-${key}`);
-  if(sv){sv.textContent=disps[key];sv.style.color=color;}if(ss){ss.textContent=score+'/100';ss.style.color=color;}if(hint)hint.textContent=hints[key];
+  const scores2={tickets:t,adoption:a,nps:n,csat:c};
+  updateSigDisplay(key,v,scores2[key],true);
   const delta=shs-chs;
   const sn=document.getElementById('sim-score-num');if(sn)sn.textContent=shs;
   const st=document.getElementById('sim-score-tier');if(st){const str=getTier(shs);st.textContent=str;st.className=`sbox-tier r${tc(str)}`;}
