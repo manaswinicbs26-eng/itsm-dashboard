@@ -179,6 +179,10 @@ body{font-family:var(--sans);background:var(--bg);color:var(--text);display:flex
 @keyframes spin{to{transform:rotate(360deg);}}
 .btn-regen{font-size:10px;padding:3px 9px;border-radius:4px;cursor:pointer;font-family:var(--sans);border:1px solid var(--aiborder);color:var(--ai);background:transparent;}
 .btn-regen:hover{background:var(--aibg);}
+.stale-badge{font-size:9px;padding:2px 7px;border-radius:4px;background:rgba(217,119,6,.1);border:1px solid rgba(217,119,6,.3);color:#d97706;display:none;align-items:center;gap:4px;font-weight:600;}
+.stale-badge.show{display:flex;}
+.stale-dot{width:5px;height:5px;border-radius:50%;background:#d97706;animation:blink2 1s infinite;}
+@keyframes blink2{0%,100%{opacity:1;}50%{opacity:.3;}}
 .ai-body{font-size:12px;line-height:1.75;color:var(--text);}
 .ai-section{margin-bottom:12px;}
 .ai-section-title{font-size:10px;text-transform:uppercase;letter-spacing:.05em;color:var(--ai);margin-bottom:6px;font-weight:600;}
@@ -417,7 +421,7 @@ for(let i=0;i<200;i++){
 ALL.sort((a,b)=>a.hs-b.hs);
 
 // ── STATE ─────────────────────────────────────────────────────────────────────
-let apiKey='',selId=null,simMode=false,activeFil='',changeLog=[],chatHistory=[],isChatLoading=false;
+let apiKey='',selId=null,simMode=false,activeFil='',changeLog=[],chatHistory=[],isChatLoading=false,analysisDebounce=null;
 
 // ── API KEY ───────────────────────────────────────────────────────────────────
 function openKeyModal(){document.getElementById('key-modal').classList.add('open');document.getElementById('key-input').value=apiKey;}
@@ -615,6 +619,14 @@ function onSlider(id,key,input){
   });
   const pb=document.getElementById('playbook');if(pb)pb.innerHTML=pbHTML(acc.tier);
   updateListItem(acc);updateTopStats();logChange(acc.co,key,v,hs);renderChangeLog();
+  if(apiKey){
+    const badge=document.getElementById('stale-badge');if(badge)badge.classList.add('show');
+    clearTimeout(analysisDebounce);
+    analysisDebounce=setTimeout(()=>{
+      const badge=document.getElementById('stale-badge');if(badge)badge.classList.remove('show');
+      generateAnalysis(acc);
+    },1500);
+  }
 }
 
 function onSimSlider(id,key,input){
@@ -698,7 +710,7 @@ function renderCenter(acc){
         <div class="sbs">${sBar('Tickets',t,'tickets')} ${sBar('Adoption',a,'adoption')} ${sBar('NPS',n,'nps')} ${sBar('CSAT',c,'csat')}</div>
       </div>
     </div>`;
-    html+=`<div class="ai-card"><div class="ai-card-head"><div class="ai-card-title">✦ AI risk analysis</div><button class="btn-regen" onclick="generateAnalysis(ALL.find(a=>a.id==${acc.id}))">Regenerate</button></div><div id="ai-analysis-body"></div></div>`;
+    html+=`<div class="ai-card"><div class="ai-card-head"><div class="ai-card-title">✦ AI risk analysis</div><div style="display:flex;align-items:center;gap:7px;"><span class="stale-badge" id="stale-badge"><span class="stale-dot"></span>Updating…</span><button class="btn-regen" onclick="generateAnalysis(ALL.find(a=>a.id==${acc.id}))">Regenerate</button></div></div><div id="ai-analysis-body"></div></div>`;
     html+=`<div class="playbook" id="playbook">${pbHTML(tr)}</div>`;
   }
 
