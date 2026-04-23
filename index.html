@@ -465,7 +465,7 @@ async function callAI(messages,onChunk,onDone,onError){
     const res=await fetch('https://api.anthropic.com/v1/messages',{
       method:'POST',
       headers:{'Content-Type':'application/json','x-api-key':apiKey,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
-      body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:1000,stream:true,system:SYS,messages})
+      body:JSON.stringify({model:'claude-sonnet-4-6',max_tokens:1000,stream:true,system:SYS,messages})
     });
     if(!res.ok){const e=await res.json();onError(e.error?.message||'API error '+res.status);return;}
     const reader=res.body.getReader();const dec=new TextDecoder();let buf='';
