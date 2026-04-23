@@ -687,10 +687,10 @@ function renderCenter(acc){
     html+=`<div class="sim-banner"><div class="sim-dot"></div>Simulation mode — adjust signals on the right to explore what-if scenarios</div>
     <div class="sim-split">
       <div class="sim-col sim-col-cur"><span class="sim-col-lbl cur-lbl">Current state</span>
-        <div class="sig-grid">${['tickets','adoption','nps','csat'].map(k=>sigCard(k,acc.signals,false,acc.id)).join('')}</div>
+        <div class="sig-grid">${['tickets','adoption','csat','nps'].map(k=>sigCard(k,acc.signals,false,acc.id)).join('')}</div>
       </div>
       <div class="sim-col sim-col-sim"><span class="sim-col-lbl sim-lbl">↯ Simulated</span>
-        <div class="sig-grid">${['tickets','adoption','nps','csat'].map(k=>sigCard(k,sim,true,acc.id)).join('')}</div>
+        <div class="sig-grid">${['tickets','adoption','csat','nps'].map(k=>sigCard(k,sim,true,acc.id)).join('')}</div>
       </div>
     </div>
     <div class="score-compare">
@@ -700,7 +700,7 @@ function renderCenter(acc){
     </div>`;
     html+=`<div class="playbook" id="playbook">${pbHTML(str,true)}</div>`;
   } else {
-    html+=`<div class="sig-grid">${['tickets','adoption','nps','csat'].map(k=>sigCard(k,acc.signals,false,acc.id)).join('')}</div>`;
+    html+=`<div class="sig-grid">${['tickets','adoption','csat','nps'].map(k=>sigCard(k,acc.signals,false,acc.id)).join('')}</div>`;
     html+=`<div class="score-panel">
       <div class="gauge-wrap"><canvas id="main-g" width="110" height="110"></canvas>
         <div class="gauge-center"><div class="g-num ${sc(hs)}" id="g-num">${hs}</div><div class="g-den">/ 100</div></div>
