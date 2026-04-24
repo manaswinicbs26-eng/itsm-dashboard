@@ -637,6 +637,16 @@ function sigCard(key,sig,isSim,accId){
         </div>
       </div>
     </div>
+    ${isSim?`
+    <div style="margin-bottom:6px;display:flex;align-items:baseline;gap:5px;">
+      <span class="sig-big-val" id="${pre}-sv-${key}" style="color:${color};font-size:22px;">${cfg.disp.replace('%','').replace(' open','').replace(' / 5','')}</span>
+      <span class="sig-unit" style="font-size:11px;color:var(--muted);">${key==='adoption'?'%':key==='tickets'?' open':key==='csat'?' / 5':''}</span>
+    </div>
+    <div class="slider-row" style="margin-bottom:4px;">
+      <input type="range" class="sig-slider" id="${pre}-sl-${key}" min="${cfg.min}" max="${cfg.max}" step="${cfg.step}" value="${cfg.val}" style="${trackStyle(cfg.val,cfg.min,cfg.max,cfg.score)}" oninput="${fn}"/>
+    </div>
+    <div class="slider-mm"><span>${cfg.minL}</span><span>${cfg.maxL}</span></div>
+    `:`
     <div class="sig-metric">
       <span class="sig-big-val" id="${pre}-sv-${key}" style="color:${color}">${cfg.disp.replace('%','').replace(' open','').replace(' / 5','')}</span>
       <span class="sig-unit">${key==='adoption'?'%':key==='tickets'?' open':key==='csat'?' / 5':''}</span>
@@ -654,14 +664,8 @@ function sigCard(key,sig,isSim,accId){
       </div>
       <div class="slider-mm"><span>${cfg.minL}</span><span>${cfg.maxL}</span></div>
     </div>`:''}
-    ${isSim?`<div style="margin-top:10px;padding-top:10px;border-top:1px solid var(--border);">
-      <div class="slider-row">
-        <input type="range" class="sig-slider" id="${pre}-sl-${key}" min="${cfg.min}" max="${cfg.max}" step="${cfg.step}" value="${cfg.val}" style="${trackStyle(cfg.val,cfg.min,cfg.max,cfg.score)}" oninput="${fn}"/>
-        <span class="slider-val" style="color:${color}" id="${pre}-slv-${key}">${cfg.disp}</span>
-      </div>
-      <div class="slider-mm"><span>${cfg.minL}</span><span>${cfg.maxL}</span></div>
-    </div>`:''}
     <div class="sig-override-note${overrideActive?' show':''}" id="${pre}-on-${key}">CSM override active — value differs from system data</div>
+    `}
   </div>`;
 }
 
@@ -814,13 +818,13 @@ function renderCenter(acc){
       </div>
     </div>
     <div class="hdr-btns">
-      ${simMode?`<button class="btn-apply" onclick="applyS(${acc.id})">Apply scenario</button><button class="btn-discard" onclick="discardS(${acc.id})">Discard</button>`:`<button class="btn-sim" onclick="startS(${acc.id})">⟳ Simulate scenario</button>`}
+      ${simMode?`<button class="btn-discard" onclick="discardS(${acc.id})">✕ Exit simulation</button>`:`<button class="btn-sim" onclick="startS(${acc.id})">⟳ Simulate scenario</button>`}
     </div>
   </div>`;
 
   if(simMode&&acc.simSignals){
     const sim=acc.simSignals;const{hs:shs}=calcH(sim);const delta=shs-hs;const str=getTier(shs);
-    html+=`<div class="sim-banner"><div class="sim-dot"></div>Simulation mode — adjust signals on the right to explore what-if scenarios</div>
+    html+=`<div class="sim-banner"><div class="sim-dot"></div>Simulation mode — explore what-if scenarios without changing account data. Click Exit simulation when done.</div>
     <div class="sim-split">
       <div class="sim-col sim-col-cur"><span class="sim-col-lbl cur-lbl">Current state</span>
         <div class="sig-grid">${['tickets','adoption','csat','nps'].map(k=>sigCard(k,acc.signals,false,acc.id)).join('')}</div>
