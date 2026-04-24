@@ -297,17 +297,7 @@ textarea.notes-in:focus{border-color:var(--accent);}
 </head>
 <body>
 
-<div class="modal-overlay" id="key-modal">
-  <div class="modal">
-    <div class="modal-title">Connect AI engine</div>
-    <div class="modal-sub">Enter your Anthropic API key to enable AI-powered risk analysis and the CSM assistant. Your key is stored in memory only.<br><br>Get a key at <a href="https://console.anthropic.com" target="_blank">console.anthropic.com</a></div>
-    <input type="password" id="key-input" placeholder="sk-ant-…" autocomplete="off"/>
-    <div class="modal-actions">
-      <button class="btn-secondary" onclick="closeKeyModal()">Cancel</button>
-      <button class="btn-primary" onclick="saveKey()">Save key</button>
-    </div>
-  </div>
-</div>
+
 
 <div class="topbar">
   <div class="brand">
@@ -321,9 +311,7 @@ textarea.notes-in:focus{border-color:var(--accent);}
     <div class="ts"><div class="ts-val" id="s-tot">—</div><div class="ts-lbl">Accounts</div></div>
     <div class="ts"><div class="ts-val" id="s-avg">—</div><div class="ts-lbl">Avg health</div></div>
   </div>
-  <div class="topbar-right">
-    <button class="btn-key" id="key-btn" onclick="openKeyModal()">⚙ Set API key</button>
-  </div>
+
 </div>
 
 <div class="layout">
@@ -367,7 +355,7 @@ textarea.notes-in:focus{border-color:var(--accent);}
           <textarea class="chat-in" id="chat-in" placeholder="Ask anything about your accounts…" rows="1" onkeydown="chatKey(event)" oninput="autoResize(this)"></textarea>
           <button class="btn-send" id="send-btn" onclick="sendChat()">↑</button>
         </div>
-        <div class="chat-hint" id="chat-hint">Set API key to enable AI responses</div>
+        <div class="chat-hint" id="chat-hint">AI assistant is ready</div>
       </div>
     </div>
     <div class="rp-pane" id="pane-details" style="flex-direction:column;">
@@ -471,18 +459,8 @@ for(let i=0;i<200;i++){
 ALL.sort((a,b)=>a.hs-b.hs);
 
 // ── STATE ─────────────────────────────────────────────────────────────────────
-let apiKey='',selId=null,simMode=false,activeFil='',changeLog=[],chatHistory=[],isChatLoading=false,analysisDebounce=null;
+let selId=null,simMode=false,activeFil='',changeLog=[],chatHistory=[],isChatLoading=false,analysisDebounce=null;
 
-// ── API KEY ───────────────────────────────────────────────────────────────────
-function openKeyModal(){document.getElementById('key-modal').classList.add('open');document.getElementById('key-input').value=apiKey;}
-function closeKeyModal(){document.getElementById('key-modal').classList.remove('open');}
-function saveKey(){
-  apiKey=document.getElementById('key-input').value.trim();closeKeyModal();
-  const btn=document.getElementById('key-btn');
-  if(apiKey){btn.textContent='✓ AI connected';btn.classList.add('keyset');document.getElementById('chat-hint').textContent='Ask anything about your portfolio';}
-  else{btn.textContent='⚙ Set API key';btn.classList.remove('keyset');document.getElementById('chat-hint').textContent='Set API key to enable AI responses';}
-}
-document.getElementById('key-modal').addEventListener('click',e=>{if(e.target===document.getElementById('key-modal'))closeKeyModal();});
 
 // ── PORTFOLIO HELPERS ─────────────────────────────────────────────────────────
 function portfolioSummary(){
@@ -506,10 +484,9 @@ Risk tiers: Critical<30, High 30–49, Medium 50–69, Low 70+.
 Be specific, data-driven, and actionable. Reference actual company names, scores, ticket counts, NPS values, and renewal timelines. Keep responses concise.`;
 
 async function callAI(messages,onChunk,onDone,onError){
-  if(!apiKey){onError('No API key — click "Set API key" in the top right.');return;}
   try{
-    const res=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',
-      headers:{'Content-Type':'application/json','x-api-key':apiKey,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
+    const res=await fetch('/api/chat',{method:'POST',
+      headers:{'Content-Type':'application/json'},
       body:JSON.stringify({model:'claude-sonnet-4-6',max_tokens:1000,stream:true,system:SYS,messages})
     });
     if(!res.ok){const e=await res.json();onError(e.error?.message||'API error '+res.status);return;}
@@ -527,7 +504,7 @@ async function callAI(messages,onChunk,onDone,onError){
 // ── AI ANALYSIS ───────────────────────────────────────────────────────────────
 async function generateAnalysis(acc){
   const el=document.getElementById('ai-analysis-body');if(!el)return;
-  if(!apiKey){el.innerHTML=`<div class="ai-no-key">Set your API key to unlock AI-powered analysis. <a onclick="openKeyModal()">Add key →</a></div>`;return;}
+
   el.innerHTML=`<div style="display:flex;align-items:center;gap:8px;font-size:12px;color:var(--ai);"><div class="ai-spinner"></div>Analyzing ${acc.co}…</div>`;
   const msgs=[{role:'user',content:`Analyze this account:\n${accContext(acc)}\n\nPortfolio context:\n${portfolioSummary()}\n\nRespond in exactly this format:\nNARRATIVE: [2 sentences]\nFACTOR1: [top risk factor]\nFACTOR2: [second risk factor]\nFACTOR3: [third risk factor]\n30D: [30-day outlook if no action]\n60D: [60-day outlook]\n90D: [90-day outlook]\nACTION: [single priority action this week]`}];
   let raw='';
@@ -722,7 +699,7 @@ function toggleOverride(id,key){
       if(el){el.textContent=v;el.style.color=col;}if(bar){bar.style.width=v+'%';bar.style.background=col;}
     });
     updateListItem(acc);updateTopStats();
-    if(apiKey){const badge=document.getElementById('stale-badge');if(badge)badge.classList.add('show');clearTimeout(analysisDebounce);analysisDebounce=setTimeout(()=>{const b=document.getElementById('stale-badge');if(b)b.classList.remove('show');generateAnalysis(acc);},1500);}
+    const badge2=document.getElementById('stale-badge');if(badge2)badge2.classList.add('show');clearTimeout(analysisDebounce);analysisDebounce=setTimeout(()=>{const b2=document.getElementById('stale-badge');if(b2)b2.classList.remove('show');generateAnalysis(acc);},1500);
   }
   logChange(acc.co,key+'_override',null,acc.hs);renderChangeLog();
 }
@@ -764,14 +741,12 @@ function onSlider(id,key,input){
   });
   const pb=document.getElementById('playbook');if(pb)pb.innerHTML=pbHTML(acc.tier);
   updateListItem(acc);updateTopStats();logChange(acc.co,key,v,hs);renderChangeLog();
-  if(apiKey){
-    const badge=document.getElementById('stale-badge');if(badge)badge.classList.add('show');
-    clearTimeout(analysisDebounce);
-    analysisDebounce=setTimeout(()=>{
-      const b=document.getElementById('stale-badge');if(b)b.classList.remove('show');
-      generateAnalysis(acc);
-    },1500);
-  }
+  const badge=document.getElementById('stale-badge');if(badge)badge.classList.add('show');
+  clearTimeout(analysisDebounce);
+  analysisDebounce=setTimeout(()=>{
+    const b=document.getElementById('stale-badge');if(b)b.classList.remove('show');
+    generateAnalysis(acc);
+  },1500);
 }
 
 function onSimSlider(id,key,input){
